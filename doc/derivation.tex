@@ -1,0 +1,219 @@
+\documentclass[reqno]{amsart}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage[usenames,dvipsnames]{color}
+\numberwithin{equation}{section}
+\usepackage{url}
+
+\oddsidemargin = 0.3in
+\evensidemargin = 0.3in
+\textwidth = 6in
+
+%\input{aliases}
+
+\begin{document}
+
+\title{stochseq: Derivations}
+\author{Kevin Emmett}
+
+\date{\today}
+\maketitle
+
+\section{Notation}
+
+\subsection{Model Inputs}
+\begin{itemize}
+\item $p$ : forward bias of random walk
+\item $e$ : base-call error rate
+\item $L$ : length of input DNA sequence
+\item $N$ : number of i.i.d. reads of input DNA sequence
+\item $d$ : number of output symbols (DNA sequence: $d=4$)
+\end{itemize}
+
+\subsection{Data}
+\begin{itemize}
+\item $\mathbf{S} = \{s_1,\ldots,s_L\}$ : input DNA sequence.
+\begin{itemize}
+\item $s_l \in \{\mathrm{A,G,C,T}\}$ : base at position $l$ of input DNA sequence.
+\end{itemize}
+\item $\mathbf{Z} =\{\mathbf{Z}^1,\ldots,\mathbf{Z}^N\}$ : set of $N$ latent state sequences.
+\begin{itemize}
+\item $T_n$ : length of read sequence $n$
+\item $\mathbf{Z}^n = \mathbf{z}^n_{1:T_n} = \{z^n_1,\ldots,z^n_{T_n}\}$ : latent state sequence $n$
+\item $z_t^n \in \{1,\ldots,L\}$ : latent state at position $t$ of read sequence $n$.
+\end{itemize}
+\item $\mathbf{X} = \{\mathbf{X}^1,\ldots,\mathbf{X}^N\}$ : set of $N$ observed state sequences.
+\begin{itemize}
+\item $\mathbf{X}^n = \mathbf{x}_{1:T_n}^n = \{x_1^n,\ldots,x_{T_n}^n\}$ : observed base sequence $n$.
+\item $x_t^n \in \{\mathrm{A,G,C,T}\}$ : observed base at position $t$ of read sequence $n$.
+\end{itemize}
+\end{itemize}
+
+\subsection{Parameters}
+\begin{itemize}
+\item $\mathbf{\Theta} = (\mathbf{\Pi^i},\mathbf{\Pi^f},\mathbf{A},\mathbf{\Sigma},\mathbf{\Omega},\mathbf{\Phi})$ : set of model parameters.
+\item $\mathbf{\Pi^i}^n = p(\mathbf{z}_1^n)$ : initial state vector for sequence $n$.
+\item $\mathbf{\Pi^f}^n = p(\mathbf{z}_{T_n}^n)$ : final state vector for sequence $n$.
+\item $\mathbf{A}_t^n = p(\mathbf{z}_{t}^n|\mathbf{z}_{t-1}^n)$ : state transition matrix. Can be time-independent or time-dependent.
+\item $\mathbf{\Sigma}$ : sequence estimate matrix
+\begin{itemize}
+\item $\Sigma_{ld} = p(S_l=d)$
+\end{itemize}
+\item $\mathbf{\Omega}^n$ : forward transition vector for sequence $n$.
+\begin{itemize}
+\item $\Omega_t^n = p(z_t = z_{t-1} + 1)$
+\end{itemize}
+\item $\mathbf{\Phi}^n$ : read error vector for sequence $n$.
+\begin{itemize}
+\item $\Phi_t^n = p(\phi_t^n=1)$
+\end{itemize}
+\end{itemize}
+
+\section{Probability Model}
+The complete-data likelihood is written as
+\begin{equation}
+p(\mathbf{X}|\mathbf{\Theta}) = \displaystyle\sum_{\mathbf{Z}}p(\mathbf{X},\mathbf{Z}|\mathbf{\Theta}).
+\end{equation}
+Assuming a set of $N$ i.i.d. read sequences, the likelihood factorizes as
+\begin{equation}
+p(\mathbf{X}|\mathbf{\Theta}) = \displaystyle\prod_{n=1}^{N}p(\mathbf{X}^n|\mathbf{\Theta}^n) = \displaystyle\prod_{n=1}^N\sum_{\mathbf{Z}^n}p(\mathbf{X}^n,\mathbf{Z}^n|\mathbf{\Theta}^n).
+\end{equation}
+Factorizing the total likelihood in this way allows us to perform EM updates on the parameters of the individual read sequences, with an additional step combining an update on $\mathbf{\Sigma}$ across all reads. We use the conditional independence properties of a first order Markov chain to factorize the likelihood for each read as
+\begin{equation}
+p(\mathbf{X}^n,\mathbf{Z}^n|\mathbf{\Theta}^n) = p(\mathbf{z}_1^n)p(\mathbf{x}_1^n|\mathbf{z}_1^n)\displaystyle\prod_{t=2}^{T_n}p(\mathbf{z}_{t}^n|\mathbf{z}_{t-1}^{n})p(\mathbf{x}_t^n|\mathbf{z}_t^n).
+\end{equation}
+Each of these terms can be represented using the set of model parameters $\mathbf{\Theta}^n=(\mathbf{\Pi^i}^n,\mathbf{\Pi^f}^n,\mathbf{A}^n,\mathbf{\Sigma})$.
+
+\begin{equation}
+\mathbf{\Pi^i}^n = \{\pi_l^i\}^n : \pi_l^{i,n} = p(z_1^n = l)
+\end{equation}
+\begin{equation}
+\mathbf{\Pi^f}^n = \{\pi_l^f\}^n : \pi_l^{f,n} = p(z_{T_n}^n = l)
+\end{equation}
+\begin{equation}
+\mathbf{A}^n = \{a_{t,ll'}\}^n : A_{t,ll'} = p(z_t^n = l' | z_{t-1}^n = l)
+\end{equation}
+\begin{equation}
+\mathbf{\Sigma} = \{\Sigma_{ld}\} : \Sigma_{ld} = p(x_t = d | z_t = l)
+\end{equation}
+Writing the above expressions in vector form,
+\begin{equation}
+p(\mathbf{z}_1^n|\mathbf{\Pi^i}^n) = \displaystyle\prod_{l=1}^{L} \pi_l^{i,n,z_{1l}}
+\end{equation}
+\begin{equation}
+p(\mathbf{z}_{T_n}^n|\mathbf{\Pi^f}^n) = \displaystyle\prod_{l=1}^{L} \pi_l^{f,n,z_{T_n l}}
+\end{equation}
+\begin{equation}
+p(\mathbf{z}_{t}^n|\mathbf{z}_{t-1}^n,\mathbf{A}_t^n) = \displaystyle\prod_{l=1}^{L}\prod_{l'=1}^{L} {A_{t,ll'}^n}^{\mathbf{z}_{t,l}\mathbf{z}_{t-1,l'}}
+\end{equation}
+\begin{equation}
+p(\mathbf{x}_{t}^n|\mathbf{z}_{t}^n,\mathbf{\Sigma}) = \displaystyle\prod_{l=1}^{L}\prod_{d=1}^{D} {\Sigma_{ld}}^{\mathbf{z}_{t,l}\mathbf{x}_{t,d}}
+\end{equation}
+%We can then write the complete-data joint likelihood as
+%\begin{equation}
+%p(\mathbf{X},\mathbf{Z}|\mathbf{\Theta})=\displaystyle\prod_{n=1}^N p(\mathbf{z}_1^n)
+%\end{equation}
+
+\section{Expectation Maximization (EM) for Hidden Markov Model}
+\subsection{E-Step}
+Calculate posterior distributions using the forward-backward algorithm. Two quantitites of interest: (1) the marginal posterior at each time step, denoted by $\gamma(\mathbf{z}_t^n)$,
+\begin{equation}
+\gamma(\mathbf{z}_t^n) = p(\mathbf{z}_t^n|\mathbf{x}_{1:T_n}^n,\mathbf{\Theta}^n),
+\end{equation}
+and (2) the joint posterior between successive states, denoted by $\xi(\mathbf{z}_{t-1}^n,\mathbf{z}_{t}^n)$,
+\begin{equation}
+\xi(\mathbf{z}_{t-1}^n,\mathbf{z}_t^n) = p(\mathbf{z}_{t-1}^n,\mathbf{z}_t^n|\mathbf{x}_{1:T_n}^n,\mathbf{\Theta}^n).
+\end{equation}
+To do this we use the standard forward-backward algorithm. First, construct the quantities
+\begin{equation}
+\alpha(\mathbf{z}_t^n)=p(\mathbf{x}_{1:t}^n,\mathbf{z}_t^n)
+\end{equation}
+\begin{equation}
+\beta(\mathbf{z}_t^n)=p(\mathbf{x}_{t+1:T_n}^n|\mathbf{z}_t^n)
+\end{equation}
+Recursion relations for $\alpha(\mathbf{z}_t^n)$ and $\beta(\mathbf{z}_t^n)$ can be derived:
+\begin{equation}
+\alpha(\mathbf{z}_t) = p(\mathbf{x}_t^n|\mathbf{z}_t^n)\displaystyle\sum_{\mathbf{z}_{t-1}^n}\alpha(\mathbf{z}_{t-1}^n)p(\mathbf{z}_t^n|\mathbf{z}_{t-1}^n)
+\end{equation}
+\begin{equation}
+\beta(\mathbf{z}_t^n) = \displaystyle\sum_{\mathbf{z}_{t+1}}\beta(\mathbf{z}_{t+1}^n)p(\mathbf{x}_{t+1}^n|\mathbf{z}_{t+1}^n)p(\mathbf{z}_{t+1}^n|\mathbf{z}_t^n)
+\end{equation}
+Because we know where the random walk begins and ends, initial conditions for the recursion are fixed:
+%\begin{equation}
+%\alpha(z_1^n) = p(\mathbf{z}_1^n)p(\mathbf{x}_1^n|\mathbf{z_1}^n)=\displaystyle\prod_{l=1}^{L}\{\pi_l^{i,n} p(\mathbf{x}_1^n|\theta_l^n)\}^{z_{1,l}^n}
+%\end{equation}
+\begin{equation}
+\alpha(z_{1,1}^n) = 1
+\end{equation}
+\begin{equation}
+\beta(z_{T_n,L}^n) = 1 
+\end{equation}
+The normalization condition on $\alpha(\mathbf{z}_t)$ is denoted by $c_t^n$, 
+\begin{equation}
+c_t^n = \displaystyle\sum_{l=1}^{L} \alpha(z_{tl}^n)
+\end{equation}
+Then we can write $\gamma$ and $\xi$ as
+\begin{equation}
+\gamma(\mathbf{z}_t^n) = \alpha(\mathbf{z}_t^n)\beta(\mathbf{z}_t^n)
+\end{equation}
+\begin{equation}
+\xi(\mathbf{z}_{t-1}^n,\mathbf{z}_{t}^n) = c_t^n \hat{\alpha}(\mathbf{z}_{t-1}^n)p(\mathbf{x}_t^n|\mathbf{z}_t^n)p(\mathbf{z}_t^n|\mathbf{z}_{t-1}^n)\hat{\beta}(\mathbf{z}_t^n)
+\end{equation}
+
+\subsection{M-Step}
+In which maximum likelihood estimates of model parameters are computed.
+
+\subsubsection{Sequence Estimate}
+\begin{equation}
+\Sigma_{ld}^{n} = \frac{\displaystyle\sum_{t=1}^{T_n} \gamma(z_{tl}^n)x_{td}^n}{\displaystyle\sum_{t=1}^{T_n}\gamma(z_{tl}^n)}
+\end{equation}
+
+\subsubsection{Forward Transition Vector}
+\begin{equation}
+\Omega_t^n = \displaystyle\sum_{l=1}^{L-1} \xi(z_{t-1}^n=l,z_t^n=l+1)
+\end{equation}
+Sum the elements on the upper diagonal and normalize to get the probability of a forward transition at step $t$. The backward transition vector is simply $\mathbf{1}-\mathbf{\Omega^n}$, or the sum along the lower diagonal.
+
+%\subsubsection{Transition Matrix}
+%\begin{equation}
+%A_{t,ll'}^n
+%\end{equation}
+%Populate the transition matrix with elements from transition inference vector. Note that an alternative implementation of the algorithm uses a time-independent transition matrix, which just keeps the forward bias as the transition rates.
+
+\subsection{H-Step}
+In which model parameters are updated by combining results of multiple reads.
+
+\subsubsection{Sequence Inference}
+\begin{equation}
+\Sigma_{ld} = \frac{1}{N}\displaystyle\sum_{n=1}^{N} \Sigma_{ld}^{n}
+\end{equation}
+Use this as input $\mathbf{\Sigma}$ in the next iteration of EM.
+
+\subsubsection{Error Inference}
+To do. You can imagine deriving an estimate of where errors are likely to have occured in each read sequence. This could be a forward pass through the set of sequences where if a given location did not agree with the consensus at that point is liable to have been an error. Denote this vector by $\mathbf{\Phi}$.
+
+\section{Inference Evaluation}
+We define several ways of evaluating the sequence inference.
+\subsubsection{Inference Likelihood}
+$p(\mathbf{X})$ is the total data likelihood function, given by
+\begin{equation}
+p(\mathbf{X}) = \displaystyle\sum_{n=1}^N\displaystyle\prod_{t=1}^{T_n} c_{t}^n
+\end{equation}
+\subsubsection{Sequence Inference Entropy}
+$H_\mathrm{seq}^l$ measures the normalized entropy of the sequence inference at position $l$, where $\Sigma_{ld} = p(S_l = d)$,
+\begin{equation}
+H_\mathrm{seq}^l = -\frac{1}{\log{D}}\displaystyle\sum_{d=1}^{D} \Sigma_{ld}\log{\Sigma_{ld}}.
+\end{equation}
+The normalized total inference entropy is given by
+\begin{equation}
+H_{\mathrm{seq}}^{\mathrm{tot}} = \frac{1}{L}\displaystyle\sum_{l=1}^{L} H_\mathrm{seq}^l
+\end{equation}
+\subsubsection{Path Inference Entropy}
+$H_\mathrm{path}^t$ measures the normalized entropy of the path inference at time $t$, where $\gamma_{tl} = p(z_t=l|\mathbf{X})$,
+\begin{equation}
+H_\mathrm{path}^t = -\frac{1}{\log L}\displaystyle\sum_{l=1}^{L} \gamma_{tl}\log\gamma_{tl}.
+\end{equation}
+This is a read sequence dependent measure.
+\end{document}
