@@ -1,5 +1,5 @@
-function [S gamma xi LpX] = em_step_homogeneous(x, S0, A, e)
-% [S g xi LpX] = em_step_homogeneous(x, S0, A, e)
+function [S gamma LpX] = em_step_homogeneous(x, S0, A, e)
+% [S gamma LpX] = em_step_homogeneous(x, S0, A, e)
 %
 % executes a single EM step on a single DNA read sequence.
 % uses a stationary transition matrix
@@ -59,7 +59,7 @@ gamma = gamma / sum(gamma(1,:));
 gamma(isnan(gamma)==1) = 0;
 
 % xi: joint posterior
-xi = zeros(L,L,T);
+%xi = zeros(L,L,T);
 %for t=2:T
 %    xitmp = c(t) * repmat(a(t-1,:)',1,L).*A.*repmat(S0(:,x(t))'.*b(t,:),L,1);
 %    xi(:,:,t)=xitmp / sum(sum(xitmp));

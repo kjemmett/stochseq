@@ -101,11 +101,11 @@ iter = 1;
 while iter < maxiter
 
 	% run em for each read
-	%em = struct();
+	em = cell(nreads,1);
 	if tDep == 0
-	    for n = 1:nreads
+	    parfor n = 1:nreads
 			% run em
-	        [em(n).S em(n).gamma em(n).xi em(n).LpX] = em_step_homogeneous(reads(n).x,S,A,err);
+	        [em{n}.S em{n}.gamma em{n}.LpX] = em_step_homogeneous(reads(n).x,S,A,err);
 		end
 	elseif tDep ==1
 		for n = 1:nreads
@@ -114,6 +114,8 @@ while iter < maxiter
 	        transVec(n).vec = em(n).ds; % update transVec
 		end
 	end
+    % convert output to struct
+    em = [em{:}];
 
 	% perform hierarchical update using averaged S
 	%inf_output.h(iter).em = em;
