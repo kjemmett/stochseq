@@ -3,7 +3,7 @@ stochseq: random walks on DNA
 
 To run:
 
-* ``stochseq_build(seqlength,bias,err,nreads)`` : builds
+* ``stochseq_build(seqlength,bias,err,nreads)`` : builds synthetic data and reads
 * ``stochseq_infer(model)`` : performs inference on model object
 
 Functions:
