@@ -1,0 +1,19 @@
+# cached versions
+*~
+
+# mac stuff
+.DS_Store
+
+# tex stuff
+*.swp
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.pdf
+*.bbl
+*.blg
+*.synctex.gz
+*.fdb_latexmk
