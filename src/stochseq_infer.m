@@ -76,7 +76,7 @@ end
 if tDep == 0
 	% construct initial transition matrix
 	A = gen_transmatrix(L,bias);
-	A = full(A);
+	%A = full(A);
 elseif tDep > 0
 	% modify this to accept input trans vectors!!!
 	% construct transition vectors
@@ -103,9 +103,9 @@ while iter < maxiter
 	% run em for each read
 	em = cell(nreads,1);
 	if tDep == 0
-	    parfor n = 1:nreads
+	    for n = 1:nreads
 			% run em
-	        [em{n}.S em{n}.gamma em{n}.LpX] = em_step_homogeneous(reads(n).x,S,A,err);
+	        [em{n}.S em{n}.gamma em{n}.LpX] = em_step_sparse(reads(n).x,S,A,err);
 		end
 	elseif tDep ==1
 		for n = 1:nreads
