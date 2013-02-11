@@ -1,6 +1,7 @@
 #include <math.h>
 #include <matrix.h>
 #include <mex.h>
+#include <iostream>
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
@@ -24,6 +25,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	// dimensions: T, K
 	mwSize T, K;
 	T = mxGetM(prhs[0]);
+    mexPrintf("point 1\n");
     K = mxGetN(prhs[0]);
 
 	// // local variables: a, b, c
@@ -39,12 +41,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     // b = mxGetPr(plhs[3]);
     // c = mxGetPr(plhs[4]);
 
+    mexPrintf("point 2\n");
 	// initialize to zero
 	for (i=0; i<T*K; i++)
 	{
+        mexPrintf("i = %ld\n", i);
 		a[i] = 0;
 		b[i] = 0;
 	}
+    mexPrintf("point 3\n");
 	for (i=0; i<T; i++)
 	{
 		c[i] = 0;
@@ -72,7 +77,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		a[k*T] /= c[0];
 	}
 
-    int t = 0;
+    long t = 0;
     for (t = 1; t < T; t++)
     {
         // a(t, k)  =  sum_l px_z(t,k) A(l, k) alpha(t-1, l)  
