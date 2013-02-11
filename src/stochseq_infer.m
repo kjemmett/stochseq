@@ -37,7 +37,7 @@ addpath(genpath('.'));
 debug = 0; % controls console output
 epsilon = 5e-3; % controls log likelihood convergence
 maxiter = 100; % controls max iter of EM loop
-S0 = 0.25 * ones(L,4); % controls initial sequence estimate
+S0 = 0.25 * ones(model.seqlength, 4); % controls initial sequence estimate
 
 % parse varargin
 for i = 1:length(varargin)
