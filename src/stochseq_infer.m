@@ -30,15 +30,8 @@ function inf_output = stochseq_infer(model, varargin)
 %
 % last modified: 2013-02-11
 
-% pull data from model struct
-reads = model.reads;
-
-% pull input parameters from model struct
-nreads = model.nreads;
-L = model.seqlength;
-bias = model.bias;
-dna = model.dna;
-err = model.err;
+% add project path
+addpath(genpath('.'));
 
 % varargin defaults
 debug = 0; % controls console output
@@ -64,6 +57,16 @@ for i = 1:length(varargin)
     end
 end 
 
+% pull data from model struct
+reads = model.reads;
+
+% pull input parameters from model struct
+nreads = model.nreads;
+L = model.seqlength;
+bias = model.bias;
+dna = model.dna;
+err = model.err;
+
 % construct initial transition matrix
 A = gen_transmatrix(L,bias);
 %A = full(A);
@@ -71,6 +74,8 @@ A = gen_transmatrix(L,bias);
 % initial sequence estimate
 S = S0;
 inf_ent = calc_entropy(S);
+
+
 
 % begin inference
 iter = 1;
