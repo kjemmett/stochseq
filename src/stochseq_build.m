@@ -62,7 +62,7 @@ else
 	dna = gen_dna(seqlength);
 end
 
-% generate reads
+% step 2: generate reads
 if debug
 	fprintf('generating reads\n');
 end

@@ -12,11 +12,9 @@ function inf_output = stochseq_infer(model, varargin)
 % varagin:
 %   'epsilon' : likelihood convergence criterion [default = 1e-2]
 %   'maxiter' : maximium iterations of EM loop [default = 100]
-%   'tDep' : use time dependent transition matrix? [default = 0]
-%   'debug' : verbose output? [default = 1]
-%   'S0' : initial sequence estimate
-%   'A' : input transition matrix?
-%   'useinputT' :
+%   'debug' : verbose output? [default = 0]
+%   'S0' : initial sequence estimate [default = uniform]
+%   'A' : input transition matrix? [default = no]
 %
 % outputs:
 %   inf_output : struct containing inference ouput
@@ -30,7 +28,7 @@ function inf_output = stochseq_infer(model, varargin)
 %     inf_output.Header
 %     inf_output.em
 %
-% last modified: 2012-01-20
+% last modified: 2013-02-11
 
 % pull data from model struct
 reads = model.reads;
@@ -43,12 +41,10 @@ dna = model.dna;
 err = model.err;
 
 % varargin defaults
-debug = 1; % controls console output
+debug = 0; % controls console output
 epsilon = 5e-3; % controls log likelihood convergence
 maxiter = 100; % controls max iter of EM loop
 S0 = 0.25 * ones(L,4); % controls initial sequence estimate
-tDep = 0; % use time dependent transition matrix?
-useinputT = 0; % use input transition vector
 
 % parse varargin
 for i = 1:length(varargin)
@@ -58,40 +54,21 @@ for i = 1:length(varargin)
             epsilon = varargin{i+1};
         case {'maxiter'}
             maxiter = varargin{i+1};
-	    case {'tdep'}
-	    	tDep = varargin{i+1};
         case {'debug'}
         	debug = varargin{i+1};
         case {'s0'}
         	S0 = varargin{i+1};
     	case {'A'}
     		A = varargin{i+1};
-    	case {'useinputT'}
-    		useinputT = varargin{i+1};
-    		inputT = varargin{i+2};
 	    end
     end
 end 
 
-if tDep == 0
-	% construct initial transition matrix
-	A = gen_transmatrix(L,bias);
-	%A = full(A);
-elseif tDep > 0
-	% modify this to accept input trans vectors!!!
-	% construct transition vectors
-	if useinputT == 1
-		for n=1:nreads
-			transVec(n).vec = inputT(n).vec;
-		end
-	elseif useinputT == 0
-		for n=1:nreads
-		    transVec(n).vec = repmat([bias 1-bias],length(reads(n).z)-1,1);
-		end
-	end
-end
+% construct initial transition matrix
+A = gen_transmatrix(L,bias);
+%A = full(A);
 
-% initial estimate
+% initial sequence estimate
 S = S0;
 inf_ent = calc_entropy(S);
 
@@ -102,18 +79,10 @@ while iter < maxiter
 
 	% run em for each read
 	em = cell(nreads,1);
-	if tDep == 0
-	    for n = 1:nreads
-			% run em
-	        [em{n}.S em{n}.gamma em{n}.LpX] = em_step_sparse(reads(n).x,S,A,err);
-		end
-	elseif tDep ==1
-		for n = 1:nreads
-			% run em
-	        [em(n).S em(n).gamma em(n).xi em(n).ds em(n).LpX] = em_step_t(reads(n).x,S,transVec(n).vec,err);
-	        transVec(n).vec = em(n).ds; % update transVec
-		end
-	end
+    for n = 1:nreads
+        % run em
+        [em{n}.S em{n}.gamma em{n}.LpX] = em_step_sparse(reads(n).x,S,A,err);
+    end
     % convert output to struct
     em = [em{:}];
 
@@ -159,12 +128,10 @@ edit_distance = strdist(int2nt(dna'),int2nt(seq_guess'));
 inf_ent = calc_entropy(S);
 tot_ent = sum(inf_ent);
 
-if debug
-	fprintf('converged in %d steps\n',iter);
-	fprintf('log likelihood = %d\n',sLpX(iter));
-	fprintf('edit distance = %d\n',edit_distance);
-	fprintf('total entropy = %d\n',tot_ent);
-end
+fprintf('converged in %d steps\n',iter);
+fprintf('log likelihood = %d\n',sLpX(iter));
+fprintf('edit distance = %d\n',edit_distance);
+fprintf('total entropy = %d\n',tot_ent);
 
 % build output struct
 inf_output.S = S;
