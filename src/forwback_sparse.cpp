@@ -1,7 +1,6 @@
 #include <math.h>
 #include <matrix.h>
 #include <mex.h>
-#include <iostream>
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
@@ -20,19 +19,19 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     At_jc = mxGetJc(prhs[2]);
 
     // loop indices
-    long i, j, k, l;
+    long i, j, k, l, t;
 
 	// dimensions: T, K
 	mwSize T, K;
 	T = mxGetM(prhs[0]);
-    mexPrintf("point 1\n");
     K = mxGetN(prhs[0]);
 
 	// // local variables: a, b, c
-	double a[T*K];
-	double b[T*K];
-	double c[T]; 
+	float *a = new float[T*K];
+	float *b = new float[T*K];
+	float *c = new float[T]; 
 
+    // create outputs for a, b, c
     // plhs[2] = mxCreateDoubleMatrix(T, K, mxREAL);
     // plhs[3] = mxCreateDoubleMatrix(T, K, mxREAL);
     // plhs[4] = mxCreateDoubleMatrix(T, 1, mxREAL);
@@ -41,15 +40,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     // b = mxGetPr(plhs[3]);
     // c = mxGetPr(plhs[4]);
 
-    mexPrintf("point 2\n");
 	// initialize to zero
 	for (i=0; i<T*K; i++)
 	{
-        mexPrintf("i = %ld\n", i);
 		a[i] = 0;
 		b[i] = 0;
 	}
-    mexPrintf("point 3\n");
 	for (i=0; i<T; i++)
 	{
 		c[i] = 0;
@@ -77,7 +73,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		a[k*T] /= c[0];
 	}
 
-    long t = 0;
     for (t = 1; t < T; t++)
     {
         // a(t, k)  =  sum_l px_z(t,k) A(l, k) alpha(t-1, l)  
@@ -106,7 +101,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	// b(t,k)  =  1/c(t+1) sum_l px_z(t+1, l) A(k, l) beta(t+1, l) 
 
 	// b(T-1,k) = 1
-    double d = 0;
+    float d = 0;
 	for (k = 0; k < K; k++) 
 	{
 		b[k*T + (T-1)] = bT[k];
@@ -136,11 +131,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	}
 
 	// allocate outputs: g, lnZ
-    double *g, *lnZ;
-	plhs[0] = mxCreateDoubleMatrix(T, K, mxREAL);
-	g = mxGetPr(plhs[0]);
+	// plhs[0] = mxCreateNumericMatrix(T, K, mxSINGLE_CLASS, mxREAL);
+	// float *g = (float *) mxGetData(plhs[0]);
+    plhs[0] = mxCreateDoubleMatrix(T, K, mxREAL);
+    double *g = mxGetPr(plhs[0]);
+
 	plhs[1] = mxCreateDoubleMatrix(1, 1, mxREAL);
-	lnZ = mxGetPr(plhs[1]);
+	double *lnZ = mxGetPr(plhs[1]);
 
 	// g(t,k) = a(t,k) * b(t,k)
 	for (i=0; i<T*K; i++)
@@ -154,6 +151,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	{
 		lnZ[0] += log(c[t]);
 	}
+
+    free(a);
+    free(b);
+    free(c);
 
 	return;
 }
