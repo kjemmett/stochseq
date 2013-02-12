@@ -68,6 +68,9 @@ dna = model.dna;
 err = model.err;
 
 % construct initial transition matrix
+if debug
+    fprintf('generating transition matrix\n');
+end
 A = gen_transmatrix(L,bias);
 %A = full(A);
 
@@ -109,10 +112,9 @@ while iter < maxiter
 	sLpX(iter) = sum([em(:).LpX]);
 	
 	if debug
-        fprintf('\niteration %d\n',iter);
-        fprintf('log likelihood = %e\n',sLpX(iter));
-        [ignore guess] = max(S,[],2);
-        fprintf('edit distance = %d\n',strdist(int2nt(dna'),int2nt(guess')));
+        fprintf('sweep: %d  ll: %.4e\n', iter, sLpX(iter));
+        %[ignore guess] = max(S,[],2);
+        %fprintf('edit distance = %d\n',strdist(int2nt(dna'),int2nt(guess')));
         %fprintf('Dkl = %e\n',dkl(model.dna_matrix,S0));
 	end
 
