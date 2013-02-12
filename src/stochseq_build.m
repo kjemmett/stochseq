@@ -33,7 +33,6 @@ function [model] = stochseq_build(seqlength, bias, err, nreads, varargin)
 %           .x : observed state sequence
 %           .z : latent state sequence
 %           .e : read error locations
-%           .t : read sequence transition vector
 %       .dna : [L 1] int
 %           dna sequence vector
 %       .seqlength : int
@@ -79,7 +78,7 @@ for n = 1:nreads
     if args.verbose
         fprintf('generating read %d\n',n);
     end
-	[model.reads(n).x model.reads(n).z model.reads(n).e model.reads(n).t] = gen_read(dna, bias, err);
+	[model.reads(n).x model.reads(n).z model.reads(n).e] = gen_read(dna, bias, err);
 end
 
 % model struct contains all the parameters
