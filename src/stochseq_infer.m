@@ -10,11 +10,10 @@ function inf_output = stochseq_infer(model, varargin)
 %       see stochseq_build for full contents
 %
 % varagin:
-%   'epsilon' : likelihood convergence criterion [default = 1e-2]
-%   'maxiter' : maximium iterations of EM loop [default = 100]
-%   'debug' : verbose output? [default = 0]
 %   'S0' : initial sequence estimate [default = uniform]
-%   'A' : input transition matrix? [default = no]
+%   'epsilon' : likelihood convergence criterion [default = 1e-5]
+%   'max_sweep' : maximium iterations of EM loop [default = 100]
+%   'verbose' : verbose output? [default = true]
 %
 % outputs:
 %   inf_output : struct containing inference ouput
@@ -33,29 +32,15 @@ function inf_output = stochseq_infer(model, varargin)
 % add project path
 addpath(genpath('.'));
 
-% varargin defaults
-debug = 0; % controls console output
-epsilon = 5e-3; % controls log likelihood convergence
-maxiter = 100; % controls max iter of EM loop
-S0 = 0.25 * ones(model.seqlength, 4); % controls initial sequence estimate
-
 % parse varargin
-for i = 1:length(varargin)
-    if isstr(varargin{i})
-        switch lower(varargin{i})
-        case {'epsilon'}
-            epsilon = varargin{i+1};
-        case {'maxiter'}
-            maxiter = varargin{i+1};
-        case {'debug'}
-        	debug = varargin{i+1};
-        case {'s0'}
-        	S0 = varargin{i+1};
-    	case {'A'}
-    		A = varargin{i+1};
-	    end
-    end
-end 
+ip = inputParser();
+ip.StructExpand = true;
+ip.addParamValue('S0', (0.25 * ones(model.seqlength, 4)), @isnumeric); 
+ip.addParamValue('epsilon', 1e-5, @isscalar);
+ip.addParamValue('max_sweep', 100, @isscalar);
+ip.addParamValue('verbose', true, @isscalar);
+ip.parse(varargin{:});
+args = ip.Results;
 
 % pull data from model struct
 reads = model.reads;
@@ -68,11 +53,7 @@ dna = model.dna;
 err = model.err;
 
 % construct initial transition matrix
-if debug
-    fprintf('generating transition matrix\n');
-end
 A = gen_transmatrix(L,bias);
-%A = full(A);
 
 % initial sequence estimate
 S = S0;
@@ -82,8 +63,7 @@ inf_ent = calc_entropy(S);
 
 % begin inference
 iter = 1;
-
-while iter < maxiter
+while iter < args.maxiter
 
 	% run em for each read
 	em = cell(nreads,1);
@@ -111,7 +91,7 @@ while iter < maxiter
 	% compute current iteration log likelihood
 	sLpX(iter) = sum([em(:).LpX]);
 	
-	if debug
+	if args.verbose
         fprintf('sweep: %d  ll: %.4e\n', iter, sLpX(iter));
         %[ignore guess] = max(S,[],2);
         %fprintf('edit distance = %d\n',strdist(int2nt(dna'),int2nt(guess')));
@@ -120,7 +100,7 @@ while iter < maxiter
 
 	% convergence check
 	if iter > 1
-		if abs(sLpX(iter) - sLpX(iter-1)) < epsilon*abs(sLpX(iter)) | sLpX(iter)==0
+		if abs(sLpX(iter) - sLpX(iter-1)) < args.epsilon*abs(sLpX(iter)) | sLpX(iter)==0
 			break
 		end		
 	end
