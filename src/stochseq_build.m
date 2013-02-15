@@ -1,77 +1,84 @@
-function [model] = stochseq_build(seqlength,bias,err,nreads,varargin)
-% function [model] = stochseq_build(seqlength,bias,err,nreads,varargin)
+function [model] = stochseq_build(seqlength, bias, err, nreads, varargin)
+% [model] = stochseq_build(seqlength, bias, err, nreads, varargin)
 %
 % data generation for stochseq
 %  1. generates random dna sequence (or uses input sequence)
 %  2. builds a set of 'nreads' dna sequences
 %
-% use output struct as input to stochseq_infer
+% use output struct as input to stochseq_infer()
 %
-% inputs:
-%   seqlength : sequence length
-%   bias : forward bias
-%   err : error rate
-%   nreads : number of reads to generate
+% Arguments
+% ---------
+% seqlength : int
+%   sequence length
+% bias : scalar
+%   forward bias
+% err : scalar
+%   error rate
+% nreads : int
+%   number of reads to generate
 %
-% varargin:
-%   'dna' : skip gen_dna step, use input dna sequence
-%   'debug' : binary, controls stdout messages [default = 1]
+% Variable Arguments
+% ------------------
+% dna : [L 1] numeric
+%   Use as input dna sequence
+%   (skip gen_dna step)
+% verbose : boolean
+%   Print status updates (default: true)
 %
-% outputs:
+% Outputs
+% -------
 %   model : struct containing read sequences and data parameters
-%       model.reads : struct containing read sequence information
-%           model.reads.x : observed state sequence
-%           model.reads.z : latent state sequence
-%           model.reads.e : read error locations
-%           model.reads.t : read sequence transition vector
-%       model.dna : dna sequence vector (Lx1 int)
-%       model.seqlength : dna sequence length
-%       model.bias : forward bias
-%       model.err : error rate
-%       model.nreads : number of reads generated
+%       .reads : struct containing read sequence information
+%           .x : observed state sequence
+%           .z : latent state sequence
+%           .e : read error locations
+%       .dna : [L 1] int
+%           dna sequence vector
+%       .seqlength : int
+%           dna sequence length
+%       .bias : scalar
+%           forward bias
+%       .err : scalar
+%           error rate
+%       .nreads : int
+%           number of reads generated
 %
-% last modified: 2012-01-20
+% last modified: 2013-02-12
 
-% varargin defaults
-use_input_dna = 0; % generate new dna sequence
-debug = 1; % verbose output
-
-for i = 1:length(varargin)
-    if isstr(varargin{i})
-        switch lower(varargin{i})
-        case {'dna'} % use a previously generated dna sequence
-            dna = varargin{i+1};
-            use_input_dna = 1;
-        case {'debug'}
-        	debug = varargin{i+1};
-        end
-    end
-end 
+% parse varargs
+ip = inputParser();
+ip.StructExpand = true;
+ip.addParamValue('dna', 0, @isnumeric);
+ip.addParamValue('verbose', true, @isscalar);
+ip.parse(varargin{:});
+args = ip.Results;
 
 % step 1: generate dna
-if use_input_dna
-	if debug
-		fprintf('using input dna sequence\n');
-	end
-    seqlength = length(dna);
-else
-	if debug
+if args.dna==0
+	if args.verbose
 		fprintf('generating dna\n');
 	end
 	% generate new dna sequence
 	dna = gen_dna(seqlength);
+else
+	if args.verbose
+		fprintf('using input dna sequence\n');
+	end
+    dna = args.dna;
+    seqlength = length(dna);
 end
 
 % step 2: generate reads
-if debug
+if args.verbose
 	fprintf('generating reads\n');
 end
 for n = 1:nreads
 	% generate read sequence x and positions z 
-    if debug
+    if args.verbose
         fprintf('generating read %d\n',n);
     end
-	[model.reads(n).x model.reads(n).z model.reads(n).e model.reads(n).t] = gen_read(dna, bias, err);
+	[model.reads(n).x model.reads(n).z model.reads(n).e] = gen_read(dna, bias, err);
 end
 
 % model struct contains all the parameters

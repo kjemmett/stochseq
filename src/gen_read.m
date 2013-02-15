@@ -1,4 +1,4 @@
-function [signal pos errloc transvec] = gen_read(dna, p, e)
+function [signal pos errloc] = gen_read(dna, p, e)
 % [signal pos] = gen_read(dna, p, e)
 %
 % Generates a random sequence, along with a set of read outs
@@ -35,12 +35,9 @@ function [signal pos errloc transvec] = gen_read(dna, p, e)
 %   0 if no read error occurred
 %   1 if a read error occurred
 %
-% transvec : (T-1 x 2) int
-%   +1 if sequence moves forwards 
-%   -1 if sequence moves backwards
 %
 %
-% $Revision: 1.02 $  $Date: 2011/10/27$
+% $Revision: 1.02 $  $Date: 2013/02/12$
 
 % get sequence length
 L = length(dna);
@@ -49,7 +46,6 @@ L = length(dna);
 signal = [];
 pos = [1];
 errloc = [];
-transvec = [];
 t = 1;
 
 while true
@@ -66,7 +62,6 @@ while true
     if rand < p
         if pos(t) < L
             pos = [pos; pos(t) + 1];
-            transvec = [transvec; 1 0];
         else
             % stop when seq runs beyond pos(t) > L
             break
@@ -74,7 +69,6 @@ while true
     else
         if pos(t) > 1
             pos = [pos; pos(t) - 1];
-            transvec = [transvec; 0 1];
         else
             % if pos(t) drops below 1, start over
             % (this is to prevent assymmetry in the number of reads 
@@ -82,7 +76,6 @@ while true
             pos = [1];
             signal = [];
             errloc = [];
-            transvec = [];
             t = 0;
         end
     end
