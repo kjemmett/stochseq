@@ -1,4 +1,4 @@
-function [S log_pX(end)] = stochseq_infer(model, varargin)
+function [S log_pX] = stochseq_infer(model, varargin)
 % function [inf_output] = stochseq_infer(model, varargin)
 %
 % sequence inference for stochseq
@@ -44,7 +44,8 @@ dna = model.dna;
 err = model.err;
 
 % construct initial transition matrix
-A = gen_transmatrix(L,bias);
+A = bsxfun(@times, ones(L, 2), [1-bias, bias]);
+d = [-1, 1];
 
 % begin inference
 S = args.S0;
@@ -60,7 +61,8 @@ while iter <= args.max_sweep
 	em = cell(nreads, 1);
     for n = 1:nreads
         % run em
-        [em{n}.S em{n}.gamma em{n}.xi em{n}.LpX] = em_step_banded(reads(n).x, S, A, err);
+        fprintf('n: %03d  T: %04d\n', n, length(reads(n).x))
+        [em{n}.S em{n}.gamma em{n}.xi em{n}.LpX] = em_step_banded(reads(n).x, S, A, d, err);
     end
     % convert output to struct
     em = [em{:}];
