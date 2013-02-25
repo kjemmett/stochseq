@@ -66,7 +66,7 @@ ip.addParamValue('lambda0', (0.25 * N + 1) * ones(L, 4), @isnumeric);
 ip.addParamValue('tau', 1.0, @isscalar);
 ip.addParamValue('kappa', 0.5, @isscalar);
 ip.addParamValue('epsilon', 1e-5, @isscalar);
-ip.addParamValue('max_sweep', 1, @isscalar);
+ip.addParamValue('max_sweep', 100, @isscalar);
 ip.addParamValue('verbose', true, @isscalar);
 ip.parse(varargin{:});
 args = ip.Results;
@@ -123,7 +123,7 @@ while s <= args.max_sweep
     % print status update
 	if args.verbose
         % MAP estimate for sequence S(l,d)
-        [ignore seq] = max(normalize(lambda, 2), [], 2);
+        % [ignore seq] = max(normalize(lambda, 2), [], 2);
         % % calculate string distance w.r.t. true sequence
         % dist = strdist(int2nt(dna'),int2nt(seq'));
         fprintf('sweep: %d  rel increase: %.4e\n', s, dL);        
@@ -137,3 +137,7 @@ while s <= args.max_sweep
     % increment sweep count
     s = s + 1;
 end
+
+[ignore seq] = max(normalize(lambda, 2), [], 2);
+edit_distance = strdist(int2nt(dna'), int2nt(seq'));
+fprintf('converged in %d steps. edit distance = %d\n', s-1 , edit_distance);
