@@ -1,5 +1,5 @@
-function [S, g, LpX] = em_step_sparse(x, S0, A, e)
-% [S g LpX] = em_step_sparse(x, S0, A, e)
+function [S, g, xi, LpX] = em_step_banded(x, S0, A, d, e)
+% [S, g, xi, LpX] = em_step_banded(x, S0, A, d, e)
 %
 % executes a single EM step on a single DNA read sequence.
 % uses a stationary transition matrix
@@ -7,7 +7,8 @@ function [S, g, LpX] = em_step_sparse(x, S0, A, e)
 % inputs:
 %   x  : observed state sequence (T x 1)
 %   S0 : initial emission matrix (L x 4)
-%   A  : transition matrix (L x L)
+%   A  : diagonals of transition matrix (L x D)
+%   d  : offset for each diagonal (D x 1)
 %   e  : base-call error rate (double)
 %
 % outputs:
@@ -31,7 +32,7 @@ bT = zeros(L,1);
 bT(end) = 1;
 
 % run forward backward
-[g, xi, LpX] = forwback_banded(px_z, A, A', a0, bT);
+[g, xi, LpX] = forwback_banded(px_z, A, [-1 1], a0, bT);
 
 % update emission matrix
 for d = 1:4
