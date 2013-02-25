@@ -26,7 +26,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     // loop indices
     long d, i, j, k, l, t;
 
-	// initialize to zero
+    // initialize to zero
 	for (i=0; i<T*K; i++)
 	{
 		a[i] = 0;
@@ -68,8 +68,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 			{
                 // A(l, k) = Ad[l, d]
                 l = k - diag[d];
-				// a(t,k) +=  px_z(t,k) A(l, k) alpha(t-1, l)  
-				a[k*T + t] += px_z[k*T + t] * Ad[d*K + l] * a[l*T + t-1];
+                if ((l >= 0) && (l < K))
+                {
+    				// a(t,k) +=  px_z(t,k) A(l, k) alpha(t-1, l)  
+    				a[k*T + t] += px_z[k*T + t] * Ad[d*K + l] * a[l*T + t-1];
+                }
 			}			
 			// c(t) += a(t,k)
 			c[t] += a[k*T + t];
@@ -81,7 +84,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		}
 	}
 
-		
 	// Back sweep - calculate
 	//
 	// b(t,k)  =  1/c(t+1) sum_l px_z(t+1, l) A(k, l) beta(t+1, l) 
@@ -106,9 +108,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 			for (d = 0; d < D; d++) 
 			{
                 // A(k, l) = Ad[k, d]
-                l = k + diag[d]; 
-				// b(t ,k) += px_z(t+1, l) A(k, l) betal(t+1, l)  
-				b[k*T + t] += px_z[l*T + t+1] * Ad[d*K + k] * b[l*T + t+1];
+                l = k + diag[d];
+                if ((l >= 0) && (l < K))
+                {
+    				// b(t ,k) += px_z(t+1, l) A(k, l) betal(t+1, l)  
+    				b[k*T + t] += px_z[l*T + t+1] * Ad[d*K + k] * b[l*T + t+1];
+                }
 			}			
 			// normalize b(t,k) by c(t+1)
 			b[k*T + t] /= c[t+1];
@@ -136,12 +141,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 			for (d = 0; d < D; d++) 
 			{
                 // A(k, l) = Ad[k, d]
-                l = k + diag[d]; 
-                // xi(k, l) += alpha(t, k) A(k,l) px_z(t+1, l) beta(t+1, l) / c(t+1)
-				xi[d*K + k] += (a[k*T + t] \
-				                * Ad[d*K + k] \
-				                * px_z[l*T + t+1] \
-				                * b[l*T + t+1]) / c[t+1];
+                l = k + diag[d];
+                if ((l >= 0) && (l < K))
+                { 
+                    // xi(k, l) += alpha(t, k) A(k,l) px_z(t+1, l) beta(t+1, l) / c(t+1)
+    				xi[d*K + k] += (a[k*T + t] \
+    				                * Ad[d*K + k] \
+    				                * px_z[l*T + t+1] \
+    				                * b[l*T + t+1]) / c[t+1];
+                }
 			}			
 		}
 	}
@@ -153,5 +161,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		lnZ[0] += log(c[t]);
 	}
 
-	return;
+    // clear unused memory	
+    free(a);
+    free(b);
+    free(c);
+
+    return;
 }
