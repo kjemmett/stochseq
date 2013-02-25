@@ -60,7 +60,7 @@ while iter <= args.max_sweep
 	em = cell(nreads, 1);
     for n = 1:nreads
         % run em
-        [em{n}.S em{n}.gamma em{n}.LpX] = em_step_sparse(reads(n).x, S, A, err);
+        [em{n}.S em{n}.gamma em{n}.xi em{n}.LpX] = em_step_banded(reads(n).x, S, A, err);
     end
     % convert output to struct
     em = [em{:}];

@@ -115,7 +115,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		}
 	}
 
-    // allocate outputs: g, lnZ
+    // allocate outputs: g, xi, lnZ
     plhs[0] = mxCreateDoubleMatrix(T, K, mxREAL);
     double *g = mxGetPr(plhs[0]);
     plhs[1] = mxCreateDoubleMatrix(K, D, mxREAL);
