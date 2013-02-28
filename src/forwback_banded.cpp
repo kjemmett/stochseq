@@ -88,15 +88,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	//
 	// b(t,k)  =  1/c(t+1) sum_l px_z(t+1, l) A(k, l) beta(t+1, l) 
 
-    // b(T-1,k) = 1
-    float CT = 0;
+    // calculate normalization term associated with boundary condition
+    float cT = 0;
     for (k = 0; k < K; k++) 
     {
         b[k*T + (T-1)] = bT[k];
-        CT += a[k*T + (T-1)] * b[k*T + (T-1)];
+        cT += a[k*T + (T-1)] * b[k*T + (T-1)];
     }
     for (k = 0; k < K; k++) {
-        b[k*T + (T-1)] /= CT;
+        b[k*T + (T-1)] /= cT;
     }
 
 	// t = T-2:0
@@ -111,7 +111,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
                 l = k + diag[d];
                 if ((l >= 0) && (l < K))
                 {
-    				// b(t ,k) += px_z(t+1, l) A(k, l) betal(t+1, l)  
+    				// b(t ,k) += px_z(t+1, l) A(k, l) beta(t+1, l)  
     				b[k*T + t] += px_z[l*T + t+1] * Ad[d*K + k] * b[l*T + t+1];
                 }
 			}			
