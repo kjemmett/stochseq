@@ -61,7 +61,7 @@ while iter <= args.max_sweep
 	em = cell(nreads, 1);
     for n = 1:nreads
         % run em
-        fprintf('n: %03d  T: %04d\n', n, length(reads(n).x))
+        % fprintf('n: %03d  T: %04d\n', n, length(reads(n).x))
         [em{n}.S em{n}.gamma em{n}.xi em{n}.LpX] = em_step_banded(reads(n).x, S, A, d, err);
     end
     % convert output to struct
