@@ -24,3 +24,5 @@ TODO:
 * Scale to L > 100 (goal is L=50000)
 * Parallelize multiple read EM
 * 3-mer window states
+* Run on cluster
+* Restarts using entropy/xi heuristics
