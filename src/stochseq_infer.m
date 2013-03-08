@@ -44,7 +44,7 @@ dna = model.dna;
 err = model.err;
 
 % construct initial transition matrix
-A = gen_transmatrix(L,bias);
+A = gen_transmatrix(L, bias);
 
 % begin inference
 S = args.S0;
@@ -103,3 +103,6 @@ if args.verbose
     fprintf('log likelihood = %.6e\n', log_pX(end));
     fprintf('edit distance = %d\n', edit_distance);
 end
+
+inf_output.S = S;
+inf_output.ll = log_pX;
