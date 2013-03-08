@@ -1,4 +1,4 @@
-function [S log_pX(end)] = stochseq_infer(model, varargin)
+function [inf_output] = stochseq_infer(model, varargin)
 % function [inf_output] = stochseq_infer(model, varargin)
 %
 % sequence inference for stochseq
