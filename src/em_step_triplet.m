@@ -22,11 +22,11 @@ L = size(S0, 1); % dna sequence length
 T = length(x);   % read sequence length
 
 % initialize matrix with observation probabilities
-
-px_z = S0(:, x(:,2))';
+px_z = S0(:, x(:, 2))';
+%pxp_z = S0(:, x(1:end-1, 3))';
+%pxm_z = S0(:, x(2:end, 1))';
 %px_z(1:end-1, :) = (px_z(1:end-1, :) + S0(:, x(2:end, 1))') / 2;
-%px_z(2:end, :) = (px_z(2:end, :) + S0(:, x(1:end-1, 3))') / 2;
-% normalize contributions
+%px_z(2:end, :) = px_z(2:end, :) + S0(:, x(1:end-1, 3))' / 3;
 
 %px_z = ((1-e) * S0(:, x(:,2)) + e/4)';
 %px_z(1:end-1, :) = px_z(1:end-1, :) + ((1-e) * S0(:, x(2:end, 1)) + e/4)';
@@ -40,6 +40,7 @@ bT = zeros(L, 1);
 bT(end) = 1;
 
 % run forward backward
+%[g, xi, LpX] = forwback_banded(px_z, A, [-1 1], a0, bT);
 [g, LpX] = forwback_sparse(px_z, A, A', a0, bT);
 
 % update emission matrix

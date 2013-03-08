@@ -17,8 +17,11 @@ function [inf_output] = stochseq_infer_triplet(model, varargin)
 %
 % outputs:
 %   inf_output : struct containing inference ouput
+%       .S : sequence estimate
+%       .ll : log likelihood array
+%       .??
 %
-% last modified: 2013-02-11
+% last modified: 2013-03-07
 
 % add project path
 addpath(genpath('.'));
@@ -33,7 +36,7 @@ ip.addParamValue('verbose', true, @isscalar);
 ip.parse(varargin{:});
 args = ip.Results;
 
-% pull data from model struct
+% pull read data from model struct
 reads = model.reads;
 
 % pull input parameters from model struct
@@ -105,3 +108,4 @@ if args.verbose
 end
 
 inf_output.S = S;
+inf_output.ll = log_pX;
