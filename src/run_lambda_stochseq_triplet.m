@@ -2,6 +2,7 @@ function run_lambda_stochseq(run_id, run_path, L, p, e, N, varargin)
 % function run_lambda_stochseq(run_id, run_path, L, p, e, N, varargin)
 
 disp('=====STOCHSEQ=====');
+disp('triplet_state model');
 
 % parse input parameters
 L = str2num(L);
@@ -28,7 +29,7 @@ dna = nt2int(s(1:L));
 
 % generate model object
 disp('generating model object');
-model = stochseq_build(L, p, e, N, 'dna', dna, 'verbose', false);
+model = stochseq_build_triplet(L, p, e, N, 'dna', dna, 'verbose', false);
 
 % save model object
 disp('saving model object');

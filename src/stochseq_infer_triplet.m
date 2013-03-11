@@ -55,6 +55,8 @@ iter = 1;
 log_pX(1) = 0;
 while iter <= args.max_sweep
 
+    tic;
+
     if iter > 1
         log_pX(iter) = log_pX(iter - 1);
     end
@@ -82,9 +84,10 @@ while iter <= args.max_sweep
 		dL = NaN;
 	end
 	
+    t = toc;
 	if args.verbose
         [ignore seq] = max(S, [], 2);
-        fprintf('sweep: %d  ll: %.6e\n', iter, log_pX(iter));
+        fprintf('sweep: %d  ll: %.6e  time: %.6f\n', iter, log_pX(iter), t);
         %fprintf('edit distance = %d\n',strdist(int2nt(dna'),int2nt(guess')));
 	end
 
@@ -109,3 +112,4 @@ end
 
 inf_output.S = S;
 inf_output.ll = log_pX;
+inf_output.ed = edit_distance;
