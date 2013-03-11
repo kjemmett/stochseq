@@ -23,6 +23,16 @@ function [inf_output] = stochseq_infer(model, varargin)
 % add project path
 addpath(genpath('.'));
 
+% pull reads from model struct
+reads = model.reads;
+
+% pull input parameters from model struct
+nreads = model.nreads;
+L = model.seqlength;
+bias = model.bias;
+dna = model.dna;
+err = model.err;
+
 % parse varargin
 ip = inputParser();
 ip.StructExpand = true;
@@ -33,16 +43,6 @@ ip.addParamValue('verbose', true, @isscalar);
 ip.parse(varargin{:});
 args = ip.Results;
 
-% pull data from model struct
-reads = model.reads;
-
-% pull input parameters from model struct
-nreads = model.nreads;
-L = model.seqlength;
-bias = model.bias;
-dna = model.dna;
-err = model.err;
-
 % construct initial transition matrix
 A = gen_transmatrix(L, bias);
 
@@ -52,13 +52,15 @@ iter = 1;
 log_pX(1) = 0;
 while iter <= args.max_sweep
 
+    tic;
+
     if iter > 1
         log_pX(iter) = log_pX(iter - 1);
     end
 
 	% run em for each read
 	em = cell(nreads, 1);
-    for n = 1:nreads
+    parfor n = 1:nreads
         % run em
         [em{n}.S em{n}.gamma em{n}.LpX] = em_step_sparse(reads(n).x, S, A, err);
     end
@@ -79,9 +81,10 @@ while iter <= args.max_sweep
 		dL = NaN;
 	end
 	
+    t = toc;
 	if args.verbose
         [ignore seq] = max(S, [], 2);
-        fprintf('sweep: %d  ll: %.6e\n', iter, log_pX(iter));
+        fprintf('sweep: %d  ll: %.6e  time: %.6f\n', iter, log_pX(iter), t);
         %fprintf('edit distance = %d\n',strdist(int2nt(dna'),int2nt(guess')));
 	end
 
@@ -104,5 +107,7 @@ if args.verbose
     fprintf('edit distance = %d\n', edit_distance);
 end
 
+% save output in inference object
 inf_output.S = S;
 inf_output.ll = log_pX;
+inf_output.ed = edit_distance;
