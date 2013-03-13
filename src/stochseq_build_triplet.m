@@ -65,7 +65,7 @@ else
 	if args.verbose
 		fprintf('using input dna sequence\n');
 	end
-    dna = nt2int(args.dna)';
+    dna = args.dna;
     seqlength = length(dna);
 end
 
