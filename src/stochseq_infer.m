@@ -47,7 +47,7 @@ args = ip.Results;
 A = gen_transmatrix(L, bias);
 
 % begin inference
-S = args.S0;
+S{1} = args.S0;
 iter = 1;
 log_pX(1) = 0;
 while iter <= args.max_sweep
@@ -62,14 +62,14 @@ while iter <= args.max_sweep
 	em = cell(nreads, 1);
     parfor n = 1:nreads
         % run em
-        [em{n}.S em{n}.gamma em{n}.LpX] = em_step_sparse(reads(n).x, S, A, err);
+        [em{n}.S em{n}.gamma em{n}.LpX] = em_step_sparse(reads(n).x, S{iter}, A, err);
     end
     % convert output to struct
     em = [em{:}];
 
 	% perform hierarchical update using averaged S
 	%inf_output.h(iter).em = em;
-    S = h_step(em);
+    S{iter+1} = h_step(em);
 
 	% compute current iteration log likelihood
 	log_pX(iter) = sum([em(:).LpX]);
@@ -83,7 +83,7 @@ while iter <= args.max_sweep
 	
     t = toc;
 	if args.verbose
-        [ignore seq] = max(S, [], 2);
+        [ignore seq] = max(S{end}, [], 2);
         fprintf('sweep: %d  ll: %.6e  time: %.6f\n', iter, log_pX(iter), t);
         %fprintf('edit distance = %d\n',strdist(int2nt(dna'),int2nt(guess')));
 	end
@@ -98,7 +98,7 @@ while iter <= args.max_sweep
 end
 
 % diagnostics
-[ignore seq_guess] = max(S, [], 2);
+[ignore seq_guess] = max(S{end}, [], 2);
 edit_distance = strdist(int2nt(dna'), int2nt(seq_guess'));
 
 if args.verbose
