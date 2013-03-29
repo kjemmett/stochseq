@@ -14,7 +14,7 @@ function A = gen_transmatrix(L, p)
 
 A = sparse(toeplitz([0 1-p zeros(1, L-2)], [0 p zeros(1, L-2)]));
 
-% move forward with prob 1 from start
+% move forward with prob 1 from start state
 A(1, 1:2) = [0 1]; 
 
 % move backward with prob 1-p from end
