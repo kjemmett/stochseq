@@ -42,14 +42,15 @@ bT(end) = 1;
 % run forward backward
 %[g, xi, LpX] = forwback_banded(px_z, A, [-1 1], a0, bT);
 [g, LpX] = forwback_sparse(px_z, A, A', a0, bT);
+%[g, LpX] = forwaback_stochseq(px_z, p);
 
 % update emission matrix
 for d = 1:4
     S(:, d) = (sum(g(x(:, 2)==d, :), 1) ./ sum(g, 1))';
 
-    %tmp = (sum(g(x(:, 3)==d, :), 1) ./ sum(g, 1))';
-    %S(2:end, d) = S(2:end, d) + tmp(1:end-1);
-    %tmp = (sum(g(x(:, 1)==d, :), 1) ./ sum(g, 1))';
-    %S(1:end-1, d) = S(1:end-1, d) + tmp(2:end);
+    tmp = (sum(g(x(:, 3)==d, :), 1) ./ sum(g, 1))';
+    S(2:end, d) = S(2:end, d) + tmp(1:end-1);
+    tmp = (sum(g(x(:, 1)==d, :), 1) ./ sum(g, 1))';
+    S(1:end-1, d) = S(1:end-1, d) + tmp(2:end);
 end
 S = S ./ repmat(sum(S,2),1,4);
