@@ -40,11 +40,14 @@ ip.addParamValue('S0', (0.25 * ones(model.seqlength, 4)), @isnumeric);
 ip.addParamValue('epsilon', 1e-5, @isscalar);
 ip.addParamValue('max_sweep', 100, @isscalar);
 ip.addParamValue('verbose', true, @isscalar);
+ip.addParamValue('method', 'sparse');
 ip.parse(varargin{:});
 args = ip.Results;
 
 % construct initial transition matrix
-A = gen_transmatrix(L, bias);
+if strcmp(args.method, 'sparse')
+    A = gen_transmatrix(L, bias);
+end
 
 % begin inference
 S{1} = args.S0;
@@ -62,8 +65,13 @@ while iter <= args.max_sweep
 	em = cell(nreads, 1);
     parfor n = 1:nreads
         % run em
-        [em{n}.S em{n}.gamma em{n}.LpX] = em_step_sparse(reads(n).x, S{iter}, A, err);
+        if strcmp(args.method, 'stochseq')
+            [em{n}.S em{n}.gamma em{n}.LpX] = em_step_stochseq(reads(n).x, S{iter}, A, err);
+        elseif strcmp(args.method, 'sparse')
+            [em{n}.S em{n}.gamma em{n}.LpX] = em_step_sparse(reads(n).x, S{iter}, A, err);
+        end
     end
+
     % convert output to struct
     em = [em{:}];
 
@@ -72,7 +80,7 @@ while iter <= args.max_sweep
     S{iter+1} = h_step(em);
 
 	% compute current iteration log likelihood
-	log_pX(iter) = sum([em(:).LpX]);
+	log_pX(iter) = sum([em(:).LpX]) / nreads;
 
 	% update previous iteration log likelihood
 	if (iter > 1)
