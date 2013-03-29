@@ -22,7 +22,8 @@ L = size(S0, 1); % dna sequence length
 T = length(x); % read sequence length
 
 % initialize matrix with observation probabilities
-px_z = ((1-e) * S0(:, x) + e/4)';
+px_z = S0(:, x)';
+%px_z = ((1-e) * S0(:, x) + e/4)';
 
 % set boundary conditions
 a0 = zeros(L,1);
@@ -30,8 +31,11 @@ a0(1) = 1;
 bT = zeros(L,1);
 bT(end) = 1;
 
+p = A(2,3);
+
 % run forward backward
-[g, LpX] = forwback_sparse(px_z, A, A', a0, bT);
+%[g, LpX] = forwback_sparse(px_z, A, A', a0, bT);
+[g, LpX] = forwback_stochseq(px_z, A, A', p);
 
 % update emission matrix
 for d = 1:4
