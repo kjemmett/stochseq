@@ -5,17 +5,21 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     // get pointers to inputs
-    double *px_z, *A, *At, *p;
+    double *px_z, *p;
     px_z = mxGetPr(prhs[0]);
-    A = mxGetPr(prhs[1]);
-    At = mxGetPr(prhs[2]);
-    p = mxGetPr(prhs[3]);
+    p = mxGetPr(prhs[1]);
+    
+    //double *px_z, *A, *At, *p;
+    //px_z = mxGetPr(prhs[0]);
+    //A = mxGetPr(prhs[1]);
+    //At = mxGetPr(prhs[2]);
+    //p = mxGetPr(prhs[3]);
 
-    mwIndex *A_ir, *At_ir, *A_jc, *At_jc;
-    A_ir = mxGetIr(prhs[1]);
-    A_jc = mxGetJc(prhs[1]);
-    At_ir = mxGetIr(prhs[2]);
-    At_jc = mxGetJc(prhs[2]);
+    //mwIndex *A_ir, *At_ir, *A_jc, *At_jc;
+    //A_ir = mxGetIr(prhs[1]);
+    //A_jc = mxGetJc(prhs[1]);
+    //At_ir = mxGetIr(prhs[2]);
+    //At_jc = mxGetJc(prhs[2]);
 
     // loop indices
     long i, j, k, l, t;
@@ -37,25 +41,16 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     //mexPrintf("hello %.2f\n", pf);
     double pr = 1 - *p;
 
-    // create outputs for a, b, c
-    // plhs[2] = mxCreateDoubleMatrix(T, K, mxREAL);
-    // plhs[3] = mxCreateDoubleMatrix(T, K, mxREAL);
-    // plhs[4] = mxCreateDoubleMatrix(T, 1, mxREAL);
-    // double *a, *b, *c;
-    // a = mxGetPr(plhs[2]);
-    // b = mxGetPr(plhs[3]);
-    // c = mxGetPr(plhs[4]);
-
 	// initialize to zero
 	for (i=0; i<T*K; i++)
 	{
 		a[i] = 0;
 		b[i] = 0;
 	}
-	for (i=0; i<T; i++)
-	{
-		c[i] = 0;
-	}
+	//for (i=0; i<T; i++)
+	//{
+	//	c[i] = 0;
+	//}
 
 	// Forward Sweep - Calculate
 	//
@@ -67,18 +62,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	//   a(t, k)  /=  c(t)
 
 	//// a(0, k)  =  px_z(0, k) a1(k)
-	//for (k = 0; k < K; k++) 
-	//{
-	//	//a[k*T] = a1[k] * px_z[k*T];
-    //	a[k*T] = a1[k];
-    //	c[0] += a[k*T];
-	//}
-
 	//// normalize a(0,k) by c(k)
-	//for (k = 0; k < K; k++) 
-	//{
-	//	a[k*T] /= c[0];
-	//}
 
     // we can explicitly initialize alpha(T=0)
     // and directly set a[0], c[0]
@@ -91,7 +75,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         
         // transition into first state
         a[t] = px_z[t] * pr * a[T+t-1];
-        c[t] += a[t];
+        c[t] = a[t];
         // transition into second state
         a[T+t] = px_z[T+t] * (a[t-1] + pr*a[2*T + t-1]);
         c[t] += a[T+t];
@@ -117,14 +101,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	// b(T-1,k) = 1
     float d = 0;
-	//for (k = 0; k < K; k++) 
-	//{
-	//	b[k*T + (T-1)] = bT[k];
-    //  d += a[k*T + (T-1)] * b[k*T + (T-1)];
-	//}
-    //for (k = 0; k < K; k++) {
-    //    b[k*T + (T-1)] /= d;
-    //}
 
     b[K*T-1] = 1;
     d = a[K*T-1] * b[K*T-1];
@@ -134,19 +110,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	for (t = T-2; t >= 0; t--)
 	{
 		// b(t, k)  =  sum_l px_z(t+1,l) A(k, l) beta(t+1, l)  
-        for (k = 0; k < K; k++) 
-        {
-            // sparse loop over column indices A(k, :)
-            for (j = At_jc[k]; j < At_jc[k+1]; j++)  
-            {
-                // A(k, l) == At[j]
-                l = At_ir[j];
-                // b(t ,k) += px_z(t+1, l) A(k, l) betal(t+1, l)  
-                b[k*T + t] += px_z[l*T + t+1] * At[j] * b[l*T + t+1];
-            }          
-            // normalize b(t,k) by c(t+1)
-            b[k*T + t] /= c[t+1];
+        b[t] = px_z[T+t+1] * b[T+t+1] / c[t+1];
+        for (k=1; k < K-1; k++) {
+            b[k*T+t] = (px_z[(k+1)*T+t+1]*pf*b[(k+1)*T+t+1] + px_z[(k-1)*T+t+1]*pr*b[(k-1)*T+t+1]) / c[t+1];
         }
+        b[(K-1)*T+t] = px_z[(K-2)*T+t+1]*pr*b[(K-2)*T+t+1] / c[t+1];
 	}
 
 	// allocate outputs: g, lnZ

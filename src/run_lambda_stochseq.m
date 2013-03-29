@@ -32,27 +32,33 @@ model = stochseq_build(L, p, e, N, 'dna', dna, 'verbose', false);
 
 % save model object
 disp('saving model object');
-savefile = [run_path '/output/' run_id '.mat'];
+savefile = [run_path '/output/' run_id '.model.mat'];
 save(savefile, 'model');
 
 % set up parallel workers
 % if applicable
 if args.par
+    sched = findResource('scheduler', 'type', 'local');
+    sched.DataLocation = regexprep(sched.DataLocation, 'home', 'scratch');
     workers = str2num(args.workers);
-    matlabpool('close', 'force', 'local')
-    matlabpool('open', 'local', workers)
+    %matlabpool('close', 'force', 'local')
+    matlabpool('open', 'local', workers);
 end
 
 % perform inference
 disp('performing inference');
-inference = stochseq_infer(model, 'verbose', true);
+inference = stochseq_infer(model, 'verbose', true, 'method', 'stochseq');
 
 % close parallel workers
 if args.par
-    matlabpool('close')
+    matlabpool('close');
 end
 
 % save inference object
 disp('saving inference object');
 savefile = [run_path '/output/' run_id '.mat'];
 save(savefile, 'inference');
+
+% save just the edit_distance for easy parsing
+ed_file = [run_path '/output/edit_distance.txt'];
+system(['echo ' num2str(inference.ed) ' >> ' ed_file]);

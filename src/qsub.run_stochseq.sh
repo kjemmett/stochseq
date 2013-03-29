@@ -8,7 +8,7 @@ echo BEGIN `date`
 echo MACHINE `hostname`
 ######################################
 
-if [ -n $SGE_TASK_ID ]
+if [ $SGE_TASK_ID ]
 then
     run_id=$1.$SGE_TASK_ID
 else
@@ -16,18 +16,32 @@ else
 fi
 
 run_path=$2
+
 L=$3
 p=$4
 e=$5
 N=$6
-if [ -n $7 ]
+
+observation_model=$7
+
+if [ $8 ]
 then
-    workers=$7
+    # controls smp execution
+    par='true'
+    workers=$8
+else
+    par='false'
 fi
 
 cd $run_path/src
 
-/nfs/apps/matlab/current/bin/matlab -nodisplay -r "run_lambda_stochseq('$run_id', '$run_path', '$L', '$p', '$e', '$N', 'par', 'false', 'workers', '$workers'); exit;"
+if [ $observation_model == "singlet" ]
+then
+/nfs/apps/matlab/current/bin/matlab -nodisplay -r "run_lambda_stochseq('$run_id', '$run_path', '$L', '$p', '$e', '$N', 'par', '$par', 'workers', '$workers'); exit;"
+elif [$observation_model == "triplet" ]
+then
+/nfs/apps/matlab/current/bin/matlab -nodisplay -r "run_lambda_stochseq_triplet('$run_id', '$run_path', '$L', '$p', '$e', '$N', 'par', '$par', 'workers', '$workers'); exit;"
+fi
 
 
 ########################################
