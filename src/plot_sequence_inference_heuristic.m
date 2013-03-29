@@ -18,22 +18,26 @@ dna = m.dna;
 figure;
 
 
-% true sequence
+% inferred sequence
 ax(1)=subplot(3,1,1);
-dna_mat = gen_dnamatrix(dna);
-dna_obj = imagesc(dna_mat');
+inf_obj=imagesc(est');
+hold on;
+%plot(dna','y-','LineWidth',2)
+hold off;
 set(gca, 'FontSize', 14);
 xlabel('Sequence Position');
 ylabel('Nucleotide');
-set(gca, 'YTick', [1 2 3 4], 'YTickLabel',{'A','C','G','T'});
+set(gca,'YTick',[1 2 3 4],'YTickLabel',{'A','C','G','T'});
 
-% inferred sequence
+[ignore S_est] = max(est, [], 2);
+
+% plot
 ax(2)=subplot(3,1,2);
-inf_obj=imagesc(est');
 hold on;
-plot(dna','y-','LineWidth',2)
+plot(4-dna', 'g.-', 'LineWidth', 2);
+plot(4-S_est', 'r.-', 'LineWidth', 2);
 hold off;
-set(gca, 'FontSize', 14);
+set(gca, 'Fontsize', 14);
 xlabel('Sequence Position');
 ylabel('Nucleotide');
 set(gca,'YTick',[1 2 3 4],'YTickLabel',{'A','C','G','T'});
