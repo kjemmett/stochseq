@@ -16,7 +16,7 @@
 \setcounter{page}{1} %first page number
 \title{Statistical Inference for Nanopore Sequencing}
 
-\author{Kevin Emmett,{\authdagger} Jacob Rosenstein, Jan-Willem van de Meent, Ken Shepherd, and Chris Wiggins}
+\author{Kevin Emmett,{\authdagger} Jacob Rosenstein, Jan-Willem van de Meent, Ken Shepard, and Chris Wiggins}
 
 \address{{\addrdagger}Department of Physics and Department of Applied Physics and Applied Math, Columbia University, New York, New York; and Department of Mechanical Engineering, Brown University, Providence, Rhode Island}
 
@@ -33,7 +33,8 @@
 
 \begin{abstract}
 {DNA translocation through a nanopore is modeled as a one-dimensional biased random walk. A Hidden Markov Model is used to infer the input DNA sequence from a set of output read sequences. Bounds on inference accuracy are set based on model parameters.}
-{Received for publication 1 April 2013 and in final form 1 April 2013.}{*Correspondence: kje@phys.columbia.edu.}
+{Received for publication 1 April 2013 and in final form 1 April 2013.}
+{*Correspondence: kje@phys.columbia.edu.}
 \end{abstract}
 
 \vspace*{2.7pt}
@@ -63,6 +64,11 @@ Given an input DNA sequence of length $L$, we generate a single output read of t
 Note that this error rate is strictly due to the base call and is independent of errors introduced due to backward motion. 
 From this simple physical model, we generate a set of $N$ observed reads, each with length $T^{n} \ge L$ and denoted $X^n_{1:T_n}$.
 A representation of the experimental configuration is shown in Figure 1.
+
+\begin{figure}\vspace*{3pt}
+\centering{\includegraphics{fig/fig1.pdf}}
+\caption{(A) Example of nanopore sequencing. (B) Example of random walks. (C) How data is generated}
+\end{figure}
 
 Given this set of $N$ read sequences, the statistical task is to infer the true sequence most likely to have generated the observed data.
 We model the data as a Hidden Markov Model (HMM) \cite{Rabiner:1989}, where each output read is modeled as a discrete set of observed states, $\mathbf{x}=\{x_{1}\dots x_{T}\}$, $x_i \in (A,G,C,T)$, a vector of observed bases, and a discrete set of hidden states, $\mathbf{z}=\{z_{1} \dots z_{T}\}$, $z_i \in (1 \dots L)$, the unknown position along the sequence.
@@ -115,11 +121,11 @@ In this scenario, techniques such as the random walk model may allow increased t
 
 \section*{SUPPLEMENTARY MATERIAL}
 
-A full derivation of the model and additional supplementary material can be found by visiting BJ Online at http://www.biophysj.org.\vspace*{6pt}
+A full derivation of the model and additional supplementary material can be found by visiting BPJ Online at http://www.biophysj.org.\vspace*{6pt}
 
 \section*{ACKNOWLEDGEMENTS}
 
-We acknowledge useful discussions with David Pfau.
+We acknowledge useful discussions with David Blei and David Pfau. Funding blurb.
 
 \begin{thebibliography}{99}
 
