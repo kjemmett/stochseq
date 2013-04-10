@@ -11,8 +11,6 @@
  
 \begin{document}
 
-%\onecolumn
-
 \setcounter{page}{1} %first page number
 \title{Statistical Inference for Nanopore Sequencing}
 
@@ -38,6 +36,7 @@
 \end{abstract}
 
 \vspace*{2.7pt}
+
 \begin{multicols}{2}
 The pending transition of DNA sequencing platforms from today's ensemble measurements to upcoming single-molecule platforms has a variety of interesting bioinformatics consequences.
 To date, all commercial sequencing platforms have relied on measurements of large sets of nominally identical molecules.
@@ -65,6 +64,9 @@ Note that this error rate is strictly due to the base call and is independent of
 From this simple physical model, we generate a set of $N$ observed reads, each with length $T^{n} \ge L$ and denoted $X^n_{1:T_n}$.
 A representation of the experimental configuration is shown in Figure 1.
 
+\end{multicols}
+
+\twocolumn
 \begin{figure}\vspace*{3pt}
 \centering{\includegraphics{fig/fig1.pdf}}
 \caption{(A) Example of nanopore sequencing. (B) Example of random walks. (C) How data is generated}
@@ -100,6 +102,12 @@ If we set a threshold for performance at 99\% sequence accuracy, as measured in 
 Figure X shows the expected number of reads required to achieve a 99\% sequence accuracy, as measured by edit distance, as a function of the forward bias.
 At current experimental limits, 99\% sequence accuracy is reliably achievable with $N=XX$.
 Finally, we observe that even high base-call error rates have minimal effect on inference accuracy, provided sufficient multiple reads are provided for averaging.
+
+% figure 2
+\begin{figure}%\vspace*{3pt}
+\centering{\includegraphics{fig/fig2.pdf}}
+\caption{Parameter Sweeps. We plot inference accuracy (measured as 1 - edit distance/length) as a function of experimental parameters. (A) N vs P. (B) N vs P. (C) e vs N. (D) N vs e.}
+\end{figure}
 
 We next applied the method to fragments of $\lambda$-phage DNA.
 We observe that, contrary to random DNA, the addition of more reads was often unable to bring the accuracy to 100\%.
@@ -201,5 +209,5 @@ We acknowledge useful discussions with David Blei and David Pfau. Funding blurb.
 
 \end{thebibliography}
 
-\end{multicols}
+%\end{multicols}
 \end{document}
