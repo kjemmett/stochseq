@@ -376,7 +376,6 @@ Biophysical Journal: Biophysical Letters & \noindent\sffamily\fontsize{8}{10}\se
 \def\label@firstpage{%
    \immediate\write\@auxout{\string
    \newlabel{firstpage}{{}{\thepage}}}}
-  \newlabel{firstpage}{{}{101}}
 \def\label@lastpage{%
   \advance\c@page\m@ne
    \immediate\write\@auxout{\string
