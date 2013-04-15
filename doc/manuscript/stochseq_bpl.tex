@@ -38,13 +38,19 @@
 \vspace*{2.7pt}
 
 \begin{multicols}{2}
-The pending transition of DNA sequencing platforms from today's ensemble measurements to upcoming single-molecule platforms has a variety of interesting bioinformatics consequences.
-To date, all commercial sequencing platforms have relied on measurements of large sets of nominally identical molecules.
-As a result, read lengths and nucleotide incorporation rates are commonly limited by the degree of synchronization that can be enforced among a population of nucleic acids.
-At the single-molecule level such coordination is irrelevant, potentially allowing extremely fast reads of long contiguous sequences.
-However, practical implementations of single-molecule sequencing introduce new sources of measurement error that should be considered carefully.
 
-Nanopore sequencing is one platform which has emerged as a candidate for next-generation sequencing platforms \cite{Branton:2008}.
+%The pending transition of DNA sequencing platforms from today's ensemble measurements to upcoming single-molecule platforms has a variety of interesting bioinformatics consequences.
+%To date, all commercial sequencing platforms have relied on measurements of large sets of nominally identical molecules.
+%As a result, read lengths and nucleotide incorporation rates are commonly limited by the degree of synchronization that can be enforced among a population of nucleic acids.
+%At the single-molecule level such coordination is irrelevant, potentially allowing extremely fast reads of long contiguous sequences.
+%However, practical implementations of single-molecule sequencing introduce new sources of measurement error that should be considered carefully.
+
+Current generation sequencing platforms have led to an explosion in available sequence data, rapidly advancing our understanding of the genomic underpinnings of life.
+Making sense of this data has relied on the development of new algorithms in bioinformatics to process the raw short-read data into usable sequence assemblies.
+However, the shortness of the raw data makes some information, particularly phasing and haplotype structure, unavailable even at the highest levels of coverage.
+The development of longer read sequence technologies is critical for continued progress in genomics (cite?). 
+
+Nanopore sequencing has emerged as a potential candidate to supercede current generation sequencing and allow for theoretically unlimited read lengths \cite{Branton:2008}.
 A number of strategies for sequencing DNA with nanopores have been proposed, with the common basis of detecting individual nucleotides as they pass through a nanometer-scale aperture in a thin membrane separating two electrolytes.
 To date, a primary obstacle of this approach has been overcoming the fast stochastic motion of the individual molecules as they are driven through the pore \cite{Venkatesan:2011, Lu:2011}.
 While recent methods have been proposed in order to controllably 'ratchet' DNA molecules through a nanopore one base at a time, experimental results show that motion of the molecule can still occur in both forward and backward directions within a single read \cite{Luan:2011, Olasagasti:2010, Cherf:2012}.
@@ -61,15 +67,17 @@ p = \frac{1}{2} + \frac{Fa}{4k_{B}T}.
 \end{equation}
 Given an input DNA sequence of length $L$, we generate a single output read of the sequence by stepping through the sequence with a bias $p$, at each step making a base call with error probability $e$.
 Note that this error rate is strictly due to the base call and is independent of errors introduced due to backward motion. 
+We treat the sequencing device itself as a black box, and assume that an appropriate method of making a base call from the raw signal has been implemented.
 From this simple physical model, we generate a set of $N$ observed reads, each with length $T^{n} \ge L$ and denoted $X^n_{1:T_n}$.
 A representation of the experimental configuration is shown in Figure \ref{fig:fig1}.
+In Figure \ref{fig:fig1}B the distribution of obtained read lengths as a fraction of the input sequence length is shown for several different forward biases, and in Figure \ref{fig:fig1}C an example of the stochastic nature of the transit is shown.
 
 \end{multicols}
 
 \twocolumn
 \begin{figure}\vspace*{3pt}
   \centering{\includegraphics[width=3.25in]{fig/fig1.pdf}}
-\caption{(A) Example of nanopore sequencing. (B) Example of random walks. (C) How data is generated}
+\caption{(A) Idealized example of a nanopore sequencing device. (B) Transit time distribution for different forward biases. (C) }
 \label{fig:fig1}
 \end{figure}
 
@@ -87,21 +95,20 @@ Additionally, the column-wise entropy of the sequence inference is shown in Figu
 
 We examined the performance of the algorithm over a range of parameter values in order to identify a minimal experimental configuration capable of sequence inference at a given accuracy.
 First, we consider how to select realistic values for our parameters.
-$p=0.5$ corresponds to completely symmetric diffusion and is unlikely to reach the end of the sequence.
+$p=0.5$ corresponds to completely symmetric diffusion and is unlikely to reach the end of the sequence without exiting from the front (?) side (we discard these reads in the data generation).
 $p=1.0$ corresponds to nondiffusive motion and is a trivial case in this model.
 Real experiments will operate somewhere in between.
 Lu et al. report an experimental bias term of $Fa/4k_{B}T=0.2$, for which they claim accurate sequence recovery is impossible \cite{Lu:2011}.
 We take this as a starting point for investigation, exploring the range $p=0.7$ to $p=1.0$.
-We are unsure of an appropriate base-call error rate, so we examine the full range $e=0.0$ to $e=0.5$.
+An appropriate base-call error rate will be device specific and is presently unknown, so we examine the complete range, $e=0.0$ to $e=0.5$.
 The number of reads, $N$, is potentially unlimited.
-A sweep across these parameters is shown in Figure X.
+A sweep across these parameters is shown in Figure \ref{fig:parameter_sweeps}.
 We observe that, as expected, the strongest determinant of achievable sequence accuracy is the number of reads, $N$.
 This is expected because each read contributes an independent observation of the input DNA sequence.
 We are most interested in the relationship between forward bias and the number of reads.
 We observe an inference error rate that falls rapidly with increasing $N$, even at highly diffusive motion. 
-If we set a threshold for performance at 99\% sequence accuracy, as measured in edit distance, we.
-Figure \ref{fig:parameter_sweeps} shows the expected number of reads required to achieve a 98\% sequence accuracy, as measured by edit distance, as a function of the forward bias.
-At current experimental limits, 98\% sequence accuracy is reliably achievable with $N=100$ at $p=0.7$ (figure doesn't really show this).
+Generally, the achievable accuracy converges at a fixed $p$ even with the addition of more reads (Figure \ref{fig:parameter_sweeps}A).
+We compare this accuracy in Figure \ref{fig:parameter_sweeps}B and see that a threshold accuracy of 99\% is achievable for $p$ as low as $0.8$.
 Finally, we observe that even high base-call error rates have minimal effect on inference accuracy, provided sufficient multiple reads are provided for averaging.
 
 % figure 3: parameter sweeps
