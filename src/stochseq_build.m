@@ -49,7 +49,7 @@ function [model] = stochseq_build(seqlength, bias, err, nreads, varargin)
 % parse varargs
 ip = inputParser();
 ip.StructExpand = true;
-ip.addParamValue('dna', 0, @isnumeric);
+ip.addParamValue('dna', 0);
 ip.addParamValue('verbose', true, @isscalar);
 ip.parse(varargin{:});
 args = ip.Results;
