@@ -11,8 +11,6 @@
  
 \begin{document}
 
-%\onecolumn
-
 \setcounter{page}{1} %first page number
 \title{Statistical Inference for Nanopore Sequencing}
 
@@ -38,6 +36,7 @@
 \end{abstract}
 
 \vspace*{2.7pt}
+
 \begin{multicols}{2}
 The pending transition of DNA sequencing platforms from today's ensemble measurements to upcoming single-molecule platforms has a variety of interesting bioinformatics consequences.
 To date, all commercial sequencing platforms have relied on measurements of large sets of nominally identical molecules.
@@ -63,11 +62,15 @@ p = \frac{1}{2} + \frac{Fa}{4k_{B}T}.
 Given an input DNA sequence of length $L$, we generate a single output read of the sequence by stepping through the sequence with a bias $p$, at each step making a base call with error probability $e$.
 Note that this error rate is strictly due to the base call and is independent of errors introduced due to backward motion. 
 From this simple physical model, we generate a set of $N$ observed reads, each with length $T^{n} \ge L$ and denoted $X^n_{1:T_n}$.
-A representation of the experimental configuration is shown in Figure 1.
+A representation of the experimental configuration is shown in Figure \ref{fig:fig1}.
 
+\end{multicols}
+
+\twocolumn
 \begin{figure}\vspace*{3pt}
-\centering{\includegraphics{fig/fig1.pdf}}
+  \centering{\includegraphics[width=3.25in]{fig/fig1.pdf}}
 \caption{(A) Example of nanopore sequencing. (B) Example of random walks. (C) How data is generated}
+\label{fig:fig1}
 \end{figure}
 
 Given this set of $N$ read sequences, the statistical task is to infer the true sequence most likely to have generated the observed data.
@@ -80,7 +83,7 @@ This key point provides us with a method of jointly using the all the informatio
 After a convergence criteria on the complete data log likelihood is satisfied, we recover an estimated emission distribution $S$, which can be converted to an estimate for the DNA sequence by taking $\mathrm{\max_{d}} {S_{dl}}$.
 The algorithm has complexity $O(L^{3})$.
 An example of the output of this algorithm showing the relationship between the true sequence and the inferred sequence distribution is shown in Figure X.
-Additionally, the column-wise entropy of the sequence inference is shown in Figure X(c).
+Additionally, the column-wise entropy of the sequence inference is shown in Figure X(c). (to make)
 
 We examined the performance of the algorithm over a range of parameter values in order to identify a minimal experimental configuration capable of sequence inference at a given accuracy.
 First, we consider how to select realistic values for our parameters.
@@ -97,9 +100,16 @@ This is expected because each read contributes an independent observation of the
 We are most interested in the relationship between forward bias and the number of reads.
 We observe an inference error rate that falls rapidly with increasing $N$, even at highly diffusive motion. 
 If we set a threshold for performance at 99\% sequence accuracy, as measured in edit distance, we.
-Figure X shows the expected number of reads required to achieve a 99\% sequence accuracy, as measured by edit distance, as a function of the forward bias.
-At current experimental limits, 99\% sequence accuracy is reliably achievable with $N=XX$.
+Figure \ref{fig:parameter_sweeps} shows the expected number of reads required to achieve a 98\% sequence accuracy, as measured by edit distance, as a function of the forward bias.
+At current experimental limits, 98\% sequence accuracy is reliably achievable with $N=100$ at $p=0.7$ (figure doesn't really show this).
 Finally, we observe that even high base-call error rates have minimal effect on inference accuracy, provided sufficient multiple reads are provided for averaging.
+
+% figure 3: parameter sweeps
+\begin{figure}
+  \centering{\includegraphics[width=3.25in]{fig/fig3.pdf}}
+\caption{Parameter Sweeps. We plot inference accuracy (measured as 1 - edit distance/length) as a function of experimental parameters. (A) N vs P. (B) N vs P. (C) e vs N. (D) N vs e.}
+\label{fig:parameter_sweeps}
+\end{figure}
 
 We next applied the method to fragments of $\lambda$-phage DNA.
 We observe that, contrary to random DNA, the addition of more reads was often unable to bring the accuracy to 100\%.
@@ -111,7 +121,14 @@ This type of error occurs when there are multiple paths that may explain the obs
 We used this observation to develop a heuristic that, acting after an initial maximum likelihood convergence, locates regions of high entropy, randomly introduces shifts in the sequence estimate, and restarts EM inference.
 If the shifted inference yields a higher log likelihood, it is kept as explaining the data better than the previous estimate.
 The procedure is repeated until no high entropy regions remain.
-The procedure is detailed in Figure 4a on a segment of $\lambda$-phage DNA.
+The procedure is detailed in Figure \ref{fig:entropy_restarts} on a segment of $\lambda$-phage DNA.
+
+% figure 4: entropy heuristic
+\begin{figure}
+  \centering{\includegraphics[width=3.25in]{fig/fig4.pdf}}
+\caption{Restarts using entropy heuristic}
+\label{fig:entropy_restarts}
+\end{figure}
 
 We have demonstrated a statistical method for inferring the DNA sequence passing through a nanopore sequencer under diffusive motion.
 The strength of the method lies in the way in which multiple reads of the input sequence are independently modeled and then iteratively combined to yield a joint estimate of the true sequence.
@@ -201,5 +218,5 @@ We acknowledge useful discussions with David Blei and David Pfau. Funding blurb.
 
 \end{thebibliography}
 
-\end{multicols}
+%\end{multicols}
 \end{document}
