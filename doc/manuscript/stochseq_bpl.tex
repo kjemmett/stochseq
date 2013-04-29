@@ -45,9 +45,9 @@
 %At the single-molecule level such coordination is irrelevant, potentially allowing extremely fast reads of long contiguous sequences.
 %However, practical implementations of single-molecule sequencing introduce new sources of measurement error that should be considered carefully.
 
-Current generation sequencing platforms have led to an explosion in available sequence data, rapidly advancing our understanding of the genomic underpinnings of life.
+Current generation sequencing platforms have led to an explosion in available sequence data, rapidly advancing our understanding of the genomic foundations of life.
 Making sense of this data has relied on the development of new algorithms in bioinformatics to process the raw short-read data into usable sequence assemblies.
-However, the shortness of the raw data makes some information, particularly phasing and haplotype structure, unavailable even at the highest levels of coverage.
+However, the shortness of the raw data renders some information, particularly phasing and haplotype structure, unavailable even at the highest levels of coverage.
 The development of longer read sequence technologies is critical for continued progress in genomics (cite?). 
 
 Nanopore sequencing has emerged as a potential candidate to supercede current generation sequencing and allow for theoretically unlimited read lengths \cite{Branton:2008}.
@@ -69,7 +69,7 @@ Given an input DNA sequence of length $L$, we generate a single output read of t
 Note that this error rate is strictly due to the base call and is independent of errors introduced due to backward motion. 
 We treat the sequencing device itself as a black box, and assume that an appropriate method of making a base call from the raw signal has been implemented.
 From this simple physical model, we generate a set of $N$ observed reads, each with length $T^{n} \ge L$ and denoted $X^n_{1:T_n}$.
-A representation of the experimental configuration is shown in Figure \ref{fig:fig1}.
+A representation of the experimental configuration is shown in Figure \ref{fig:fig1}A.
 In Figure \ref{fig:fig1}B the distribution of obtained read lengths as a fraction of the input sequence length is shown for several different forward biases, and in Figure \ref{fig:fig1}C an example of the stochastic nature of the transit is shown.
 
 \end{multicols}
@@ -77,17 +77,17 @@ In Figure \ref{fig:fig1}B the distribution of obtained read lengths as a fractio
 \twocolumn
 \begin{figure}\vspace*{3pt}
   \centering{\includegraphics[width=3.25in]{fig/fig1.pdf}}
-\caption{(A) Idealized example of a nanopore sequencing device. (B) Transit time distribution for different forward biases. (C) }
+\caption{A. Idealized example of a nanopore sequencing device. B. Transit time distribution for different forward biases. (C) Random walks on a DNA sequence $L=100$.}
 \label{fig:fig1}
 \end{figure}
 
 Given this set of $N$ read sequences, the statistical task is to infer the true sequence most likely to have generated the observed data.
 We model the data as a Hidden Markov Model (HMM) \cite{Rabiner:1989}, where each output read is modeled as a discrete set of observed states, $\mathbf{x}=\{x_{1}\dots x_{T}\}$, $x_i \in (A,G,C,T)$, a vector of observed bases, and a discrete set of hidden states, $\mathbf{z}=\{z_{1} \dots z_{T}\}$, $z_i \in (1 \dots L)$, the unknown position along the sequence.
 For an HMM, we require three model parameters, the initial state distribution $\pi=p(\mathbf{z}_{1})$, the state transition matrix $A=p(\mathbf{z}_{t}|\mathbf{z}_{t-1})$, and an emission distribution $S=p(\mathbf{x}_{n}|\mathbf{z}_{n})$. 
-$\pi$ and $A$ are taken as fixed given the experimental conditions, and our attention focuses on optimizing $p(\mathbf{x}_{n}|\mathbf{z}_{n})$, which directly represents our true sequence inference.
+$\pi$ and $A$ are taken as fixed given the experimental conditions, and our attention focuses on optimizing $p(\mathbf{x}_{n}|\mathbf{z}_{n})$, which is the explicit representaiton of our sequence inference.
 We maximize the complete data log likelihood, $p(X,Z|\theta)$, with respect to the model parameters using an implementation of expectation-maximization (EM).
 Because the likelihood factorizes over the independent output reads, $p(X,Z|\theta)=\prod_{n}p(X^n,Z^n|\theta)$, we can perform expectation updates on each read individually before averaging results in the maximization step.
-This key point provides us with a method of jointly using the all the information provided in the reads while still maintaing an efficient, parallel calculation.
+This provides us with a method of jointly using the all the information provided in the reads while still maintaing an efficient, parallel calculation.
 After a convergence criteria on the complete data log likelihood is satisfied, we recover an estimated emission distribution $S$, which can be converted to an estimate for the DNA sequence by taking $\mathrm{\max_{d}} {S_{dl}}$.
 The algorithm has complexity $O(L^{3})$.
 An example of the output of this algorithm showing the relationship between the true sequence and the inferred sequence distribution is shown in Figure X.
@@ -118,11 +118,11 @@ Finally, we observe that even high base-call error rates have minimal effect on 
 \label{fig:parameter_sweeps}
 \end{figure}
 
-We next applied the method to fragments of $\lambda$-phage DNA.
-We observe that, contrary to random DNA, the addition of more reads was often unable to bring the accuracy to 100\%.
-We determined that this is due to specific sequence patterns that are more difficult for the algorithm to correctly parse, suggesting that a more specific method of identifying backwards motion may be required.
+%We next applied the method to fragments of $\lambda$-phage DNA.
+%We observe that, contrary to random DNA, the addition of more reads was often unable to bring the accuracy to 100\%.
+%We determined that this is due to specific sequence patterns that are more difficult for the algorithm to correctly parse, suggesting that a more specific method of identifying backwards motion may be required.
 
-Next, we observe that errors in the sequence inference due to diffusive motion can take the form of extraneous insertions and deletion along the true sequence.
+Next, we observe that errors in the sequence inference due to diffusive motion take the form of extraneous insertions and deletion along the true sequence.
 These errors are not random, but have a predictable pattern that makes it possible to identify and correct them during the inference algorithm.
 This type of error occurs when there are multiple paths that may explain the observed data, and manifest themselves in the inference estimate as regions of higher entropy.
 We used this observation to develop a heuristic that, acting after an initial maximum likelihood convergence, locates regions of high entropy, randomly introduces shifts in the sequence estimate, and restarts EM inference.
