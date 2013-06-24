@@ -12,14 +12,20 @@
         
 \doi{doi: XX.XXXX/biophysj.XXX.XXXXXX}% DOI number in the copyright line
 
+% macros
 \input{macros.tex}
+
+% use parens instead of brackets in cite command
+\makeatletter
+\renewcommand\@cite[1]{(#1)}
+\makeatother
 
 \begin{document}
 
 \setcounter{page}{1} %first page number
 \title{Statistical Inference for Nanopore Sequencing Under a Biased Random Walk Model.}
 
-\author{Kevin Emmett,{\authdag} Jacob Rosenstein,{\authS} Jan-Willem van de Meent,{\authddag} Ken Shepard, and Chris Wiggins{\authddag}}
+\author{Kevin Emmett,{\authdag *} Jacob Rosenstein,{\authS} Jan-Willem van de Meent,{\authddag} Ken Shepard, and Chris Wiggins{\authddag}}
 
 \address{{\addrdag}Department of Physics and {\addrddag}Department of Applied Physics and Applied Math and {\addrS}Department of Electrical Engineering, Columbia University, New York, New York; and {\addrpar}School of Engineering, Brown University, Providence, Rhode Island}
 
@@ -49,8 +55,8 @@ We conclude that high accuracy inference is achievable within todays experimenta
 
 \vspace*{2.7pt}
 
-\twocolumn
-%\begin{multicols}{2}
+%\twocolumn
+\begin{multicols}{2}
 
 %The pending transition of DNA sequencing platforms from today's ensemble measurements to upcoming single-molecule platforms has a variety of interesting bioinformatics consequences.
 %To date, all commercial sequencing platforms have relied on measurements of large sets of nominally identical molecules.
@@ -81,14 +87,14 @@ Translocation through the nanopore is modeled as one-dimensional diffusion with 
 \begin{equation}
 p = \frac{1}{2} + \frac{Fa}{4k_{B}T}.
 \end{equation}
-Given an input DNA sequence of length $L$, we generate a single output read of the sequence by stepping through the sequence with a bias $p$, at each step making a base call with error probability $e$.
-The error rate $e$ is strictly due to the base call and is independent of error introduced due to backward motion. 
-Finally, we assume an appropriate method of making a base call from the raw signal.
+Given an input DNA sequence of length $L$, we generate a single output read of the sequence by stepping through the sequence with a bias $p$, at each step making a base-call with error probability $e$.
+The error rate $e$ is strictly due to the base-call and is independent of error introduced due to backward motion. 
+Finally, we assume an appropriate method of making a base-call from the raw signal.
 From this simple physical model, we generate a set of $N$ simulated reads, each with length $T^{n} \ge L$ and denoted $X^n_{1:T_n}$.
 Here $N$ is a notion of sequence coverage in terms of identical molecules sequenced.
 Coverage could result from either amplification or resequencing of the initial molecule.
-A schematic representation of a nanopore sequencing device is shown in Figure \ref{fig:fig1}A.
-In Figure \ref{fig:fig1}B a series of random walks at several different forward biases is shown, along with the resulting read length distribution.
+A schematic representation of a nanopore sequencing device is shown in Fig.\ref{fig:fig1}\emph{~A}.
+In Fig.~\ref{fig:fig1}\emph{~B} a series of random walks at several different forward biases is shown, along with the resulting read length distribution.
 The expected length of a read is 
 \begin{equation}
   \left\langle T  \right\rangle = \frac{1}{2(p-0.5)} L.
@@ -106,9 +112,9 @@ Given this set of $N$ read sequences, the statistical task is to infer the seque
 An experiment similar to this model was demonstrated on very short sequences with nanopore sequencer data in \cite{Ohshiro:2012}.
 Here we extend the approach to the longer sequences expected from a nanopore device.
 
-%\end{multicols}
+\end{multicols}
+\twocolumn
 
-%\twocolumn
 We model the data as a Hidden Markov Model (HMM) \cite{Rabiner:1989}, where each output read is modeled as a discrete set of observed states, $\mathbf{x}=\{x_{1}\dots x_{T}\}$, $x_i \in (A,C,G,T)$, a vector of observed bases, and a discrete set of hidden states, $\mathbf{z}=\{z_{1} \dots z_{T}\}$, $z_i \in (1 \dots L)$, the unknown position along the sequence.
 For an HMM, we require three model parameters, the initial state distribution $\pi=p(\mathbf{z}_{1})$, the hidden state transition matrix $A=p(\mathbf{z}_{t}|\mathbf{z}_{t-1})$, and an emission distribution $S=p(\mathbf{x}_{n}|\mathbf{z}_{n})$. 
 $\pi$ and $A$ are fixed by the experimental conditions, and our attention focuses on optimizing the emission distribution, $S$, which acts as an implicit representation of our sequence inference,
@@ -116,7 +122,7 @@ $\pi$ and $A$ are fixed by the experimental conditions, and our attention focuse
   S_{dl} = (1-e)p(\mathbf{x}_n = d |\mathbf{z}_{n} = l) + \frac{e}{4} 
 \end{equation}
 
-In practice, $S$ is a 4-by-$L$ matrix with a multinomial distribution over the the possible nucleotides at each position (see Figure \ref{fig:inference_output}).
+In practice, $S$ is a $4 \times L$ matrix with a multinomial distribution over the the possible nucleotides at each position (see Fig.~\ref{fig:inference_output}).
 We maximize the likelihood, $p(X \:|\: \theta)$, with respect to the model parameters using an implementation of the expectation-maximization (EM) algorithm \cite{Baum:1970}.
 Because the joint probability of data and states can be written as a product over the independent output reads, $p(\mathbf{X},\mathbf{Z}|\theta)=\prod_{n}p(\mathbf{X}^n,\mathbf{Z}^n|\theta)$, we can perform expectation updates on each read individually before averaging results in the maximization step.
 This shared parameter estimation scheme allows us to incorporate all the information provided in the reads while allowing an efficient, parallel calculation.
@@ -124,8 +130,8 @@ This shared parameter estimation scheme allows us to incorporate all the informa
 After a convergence criteria on the complete data log likelihood is satisfied, we recover an estimated emission distribution $S$, which can be converted to an estimate for the DNA sequence by taking $\mathrm{\max_{d}} {S_{dl}}$.
 The final inference accuracy is measured as the Levenstein distance between the input sequence and inferred sequence, normalized by $L$.
 The algorithm has complexity $O(NLT)$, where $T$ is $O(L)$ in the limit of $p=1$, and $O(L^2)$ in the limit of $p=0.5$.
-An example of the output of this algorithm showing the relationship between the true sequence and the inferred sequence distribution is shown in Figure \ref{fig:inference_output}A.
-Additionally, the column-wise entropy of the sequence inference, defined as $H_{l}=-\sum_{d}S_{dl}\log{S_{dl}}$, is shown in Figure \ref{fig:inference_output}C.
+An example of the output of this algorithm showing the relationship between the true sequence and the inferred sequence distribution is shown in Fig.~\ref{fig:inference_output}\emph{~A}.
+Additionally, the column-wise entropy of the sequence inference, defined as $H_{l}=-\sum_{d}S_{dl}\log{S_{dl}}$, is shown in Fig.~\ref{fig:inference_output}\emph{~C}.
 Inference errors in this model are generally associated with increases in the inference entropy around the error position $l$, suggesting a possible approach that further analysis might systematically identify and remove the inference errors due to bidirectional motion.
 
 % figure 2: inference output
@@ -151,16 +157,16 @@ The number of reads, $N$, is potentially unlimited, and we examine until converg
 \label{fig:parameter_sweeps}
 \end{figure}
 
-A sweep across the parameter space is shown in Figure \ref{fig:parameter_sweeps}.
-For \emph{N}=1, the average inference accuracy goes roughly as {\raise.17ex\hbox{$\scriptstyle\sim$}}\emph{p}, a baseline measure of performance (Figure \ref{fig:parameter_sweeps}A).
-In Figure \ref{fig:parameter_sweeps}B we plot the relationship between forward bias and the number of reads.
+A sweep across the parameter space is shown in Fig.~\ref{fig:parameter_sweeps}.
+For \emph{N}=1, the average inference accuracy goes roughly as {\raise.17ex\hbox{$\scriptstyle\sim$}}\emph{p}, a baseline measure of performance (Fig. \ref{fig:parameter_sweeps}\emph{~A}).
+In Fig.~\ref{fig:parameter_sweeps}\emph{~B} we plot the relationship between forward bias and the number of reads.
 As expected, the strongest determinant of inference accuracy is the number of reads, \emph{N}.
 This is expected because each read contributes an independent observation of the input DNA sequence.
 We observe an inference error rate that falls rapidly with increasing \emph{N}, even at highly diffusive motion. 
 Generally, the achievable accuracy converges at a fixed \emph{p} even with the addition of more reads.
-This asymptotic performance is plotted in Figure \ref{fig:parameter_sweeps}C.
+This asymptotic performance is plotted in Fig.~\ref{fig:parameter_sweeps}\emph{~C}.
 A threshold accuracy of 99\% is achievable for \emph{p} as low as 0.8; an accuracy exceeding 99.9\% is achievable with \emph{p} \textgreater 0.88.
-Finally, inference accuracy is independent of the base-call error rate, provided the each nucleotide in the sequence is visited sufficient times (Figure \ref{fig:parameter_sweeps}D).
+Finally, inference accuracy is independent of the base-call error rate, provided the each nucleotide in the sequence is visited sufficient times (Fig.~\ref{fig:parameter_sweeps}\emph{~D}).
 
 Precise control over the motion of the DNA sequence inside the nanopore has previously been assumed a necessary prerequisite for accurate nanopore sequencing.
 Here we have demonstrated that high accuracy inference is possible, even in the presence of diffusive motion, with the integration of data under an appropriate statistical model. 
@@ -171,11 +177,13 @@ In this scenario, techniques such as the random walk model may allow increased t
 
 \section*{SUPPLEMENTARY MATERIAL}
 
-A full derivation of the model and additional supplementary material can be found by visiting BPJ Online at http://www.biophysj.org.\vspace*{6pt}
+The full model can be found by visiting BPJ Online at http://www.biophysj.org.\vspace*{6pt}
 
 \section*{ACKNOWLEDGEMENTS}
 
-We acknowledge useful discussions with David Blei and David Pfau. Funding blurb (TODO: Chris).
+The authors acknowledge useful discussions with D. Blei and D. Pfau.
+
+This work was supported by grant XXX (TODO: Chris, need numbers).
 
 \begin{thebibliography}{99}
 
