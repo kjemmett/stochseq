@@ -29,9 +29,9 @@
 
 \address{{\addrdag}Department of Physics and {\addrddag}Department of Applied Physics and Applied Math and {\addrS}Department of Electrical Engineering, Columbia University, New York, New York; and {\addrpar}School of Engineering, Brown University, Providence, Rhode Island}
 
-\maketitle
-
 \pagestyle{headings}
+
+\maketitle
 
 \markboth{Biophysical Journal: Biophysical Letters}{Biophysical Journal: Biophysical Letters} %for running head
 
@@ -41,22 +41,22 @@
 %3. Address, email
 
 \begin{abstract}
-{Nanopore sequencing promises long read-lengths and single-molecule resolution, but the stochastic motion of the DNA molecule inside the pore is considered a barrier to high accuracy reads.
-Experimental efforts have sought, with some success, to control DNA translocation to ensure unidirectional motion.
-The bidirectional motion of DNA inside the pore is a previously unconsidered source of error in alignment algorithms.
-Here we develop a method of statistical inference that explicitly accounts for this error.
-We present a statistical analysis demonstrating that highly accurate (\textgreater 99.9\%) sequence inference is feasible even under highly diffusive motion, in a biased random walk model.
-The model uses a Hidden Markov Model (HMM) to analyze multiple stochastic reads, using the Expectation-Maximization (EM) algorithm to infer the most likely sequence.
-Using this model, we place bounds on the achievable inference accuracy under a range of experimental parameters.
-We conclude that high accuracy inference is achievable within todays experimental constraints.}
-{Received for publication 1 June 2013 and in final form 1 June 2013.}
-{*Correspondence: kje@phys.columbia.edu.}
+    {Nanopore sequencing promises long read-lengths and single-molecule resolution, but the stochastic motion of the DNA molecule inside the pore is considered a barrier to high accuracy reads.
+    Experimental efforts have sought, with some success, to control DNA translocation to ensure unidirectional motion.
+    The bidirectional motion of DNA inside the pore is a previously unconsidered source of error in alignment algorithms.
+    Here we develop a method of statistical inference that explicitly accounts for this error.
+    We present a statistical analysis demonstrating that highly accurate (\textgreater 99.9\%) sequence inference is feasible even under highly diffusive motion, in a biased random walk model.
+    The model uses a Hidden Markov Model (HMM) to analyze multiple stochastic reads, using the Expectation-Maximization (EM) algorithm to infer the most likely sequence.
+    Using this model, we place bounds on the achievable inference accuracy under a range of experimental parameters.
+    We conclude that high accuracy inference is achievable within todays experimental constraints.}
+    {Received for publication 1 June 2013 and in final form 1 June 2013.}
+    {*Correspondence: kje@phys.columbia.edu.}
 \end{abstract}
 
 \vspace*{2.7pt}
 
-%\twocolumn
-\begin{multicols}{2}
+\twocolumn
+% \begin{multicols}{2}
 
 %The pending transition of DNA sequencing platforms from today's ensemble measurements to upcoming single-molecule platforms has a variety of interesting bioinformatics consequences.
 %To date, all commercial sequencing platforms have relied on measurements of large sets of nominally identical molecules.
@@ -66,34 +66,33 @@ We conclude that high accuracy inference is achievable within todays experimenta
 
 Rapid advancements in DNA sequencing technologies have led to an explosion in available nucleotide sequence data, greatly enhancing our understanding of the genomic basis of many biological processes.
 Making sense of this data has relied on the development of new algorithms in bioinformatics to process the raw short-read data into usable sequence assemblies.
-However, the high coverage required for reliable assembly makes some applications, such as \emph{de novo} assembly, difficult.
+\jwm{However, the high coverage required for reliable assembly makes \emph{de novo} applications difficult.}
 Additionally, existing methods aggregate over large populations of nominally identical molecules.
 Applications which require higher molecular resolution, such as rare variant detection, haplotype phasing, and metagenomics often remain out of reach.
 The development of highly accurate, single molecule, long-read sequencing technologies is critical for sustained progress in these applications \cite{Mak:2012}.
 
-Nanopore sequencing has emerged as a potential candidate to supercede current generation sequencing and allow for theoretically unlimited read length \cite{Branton:2008}.
-A number of strategies for sequencing DNA with nanopores have been proposed, with the common basis of detecting individual nucleotides as they pass through a nanometer-scale aperture in a thin membrane separating two electrolytes.
+Nanopore sequencing has emerged as a candidate to supercede current generation sequencing and allow for theoretically unlimited read length \cite{Branton:2008}.
+A number of strategies have been proposed, with the common basis of detecting individual nucleotides as they pass through a nanometer-scale aperture in a thin membrane separating two electrolytes.
 To date, a significant obstacle of this approach has been overcoming the fast stochastic motion of the individual molecules as they are driven through the pore \cite{Venkatesan:2011, Lu:2011}.
-Ideally, such a device would control the passage of DNA through the pore such that motion was unidirectional and each base had a well-resolved signal.
-Recent methods have demonstrated an ability to controllably `ratchet' DNA molecules through a nanopore one base at a time, although experimental results show that motion of the molecule can still occur in both forward and backward directions within a single read \cite{Luan:2011, Olasagasti:2010, Cherf:2012}.
-Therefore, unidirectional stepwise motion remains difficult to reliably achieve, leading to a source of error in the read sequence not previously considered by existing algorithms.
+Ideally a device would control the passage of DNA through the pore such that motion was unidirectional and each base had a well-resolved signal.
+Recent methods have demonstrated an ability to controllably `ratchet' DNA molecules through a nanopore one base at a time, although motion of the molecule can still occur in both forward and backward directions within a single read \cite{Luan:2011, Olasagasti:2010, Cherf:2012}.
+Unidirectional motion remains difficult to reliably achieve, leading to a source of error in the read sequence not previously \jwm{adressed} by existing algorithms.
 
 In this letter, we consider a simple physical model of DNA translocation as a one-dimensional biased random walk and analyze how the diffusive molecular motion affects the difficulty achievable read accuracy of nanopore sequencing.
 To do so, we simulate noisy data where the true sequence is unknown, and develop a statistical technique to estimate the most likely DNA sequence associated with the simulated read signal.
-Our method is based on Hidden Markov Models (HMMs), which have recently been used to study multi-base resolution in a nanopore sequencer \cite{Timp:2012}, but have not yet been applied to the problem of diffusive motion inside the pore.
-This work shows that combining multiple reads from a given input DNA sequence passing through a nanopore allows accurate estimates of the sequence, both in the presence of highly diffusive molecular motion and at high base-call error rates.
+Our method is based on hidden Markov models (HMMs), which have recently been used to study multi-base resolution in a nanopore sequencer \cite{Timp:2012}, but have not yet been applied to the problem of diffusive motion inside the pore.
+This work shows that combining multiple reads from a given input DNA sequence  allows accurate estimates of the sequence, both in the presence of highly diffusive molecular motion and at high base-call error rates.
 
-Translocation through the nanopore is modeled as one-dimensional diffusion with driving force $F$ and unit base step size $a$, which we treat as a biased random walk with fixed forward bias $p$ \cite{Berg:1993}, where $p$ is given by
+We model motion through the nanopore as one-dimensional diffusion with driving force $F$ and unit base step size $a$, which results in a random walk with fixed forward bias \cite{Berg:1993}
 \begin{equation}
 p = \frac{1}{2} + \frac{Fa}{4k_{B}T}.
 \end{equation}
-Given an input DNA sequence of length $L$, we generate a single output read of the sequence by stepping through the sequence with a bias $p$, at each step making a base-call with error probability $e$.
-The error rate $e$ is strictly due to the base-call and is independent of error introduced due to backward motion. 
+Given an input DNA sequence of length $L$, we generate a single output read by stepping through the sequence with a bias $p$, at each step making a base-call with error probability $e$, which is independent of error introduced due to backward motion. 
 Finally, we assume an appropriate method of making a base-call from the raw signal.
-From this simple physical model,\end{multicols}\twocolumn we generate a set of $N$ simulated reads, each with length $T^{n} \ge L$ and denoted $X^n_{1:T_n}$.
+From this simple physical model, we generate a set of $N$ simulated reads $X_n$, which each have a unique length $T_{n} \ge L$ that depends on the forward bias.
 Here $N$ is a notion of sequence coverage in terms of identical molecules sequenced.
 Coverage could result from either amplification or resequencing of the initial molecule.
-A schematic representation of a nanopore sequencing device is shown in Fig.\ref{fig:fig1}\emph{~A}.
+A schematic representation of a nanopore sequencing device is shown in Fig.~\ref{fig:fig1}\emph{~A}.
 In Fig.~\ref{fig:fig1}\emph{~B} a series of random walks at several different forward biases is shown, along with the resulting read length distribution.
 The expected length of a read is 
 \begin{equation}
@@ -115,19 +114,20 @@ Here we extend the approach to the longer sequences expected from a nanopore dev
 %\end{multicols}
 %\twocolumn
 
-We model the data as a Hidden Markov Model (HMM) \cite{Rabiner:1989}, where each output read is modeled as a discrete set of observed states, $\mathbf{x}=\{x_{1}\dots x_{T}\}$, $x_i \in (A,C,G,T)$, a vector of observed bases, and a discrete set of hidden states, $\mathbf{z}=\{z_{1} \dots z_{T}\}$, $z_i \in (1 \dots L)$, the unknown position along the sequence.
-For an HMM, we require three model parameters, the initial state distribution $\pi=p(\mathbf{z}_{1})$, the hidden state transition matrix $A=p(\mathbf{z}_{t}|\mathbf{z}_{t-1})$, and an emission distribution $S=p(\mathbf{x}_{n}|\mathbf{z}_{n})$. 
-$\pi$ and $A$ are fixed by the experimental conditions, and our attention focuses on optimizing the emission distribution, $S$, which acts as an implicit representation of our sequence inference,
+In our HMM formulation, each output read is modeled as a discrete set of observed states, $\mathbf{x}=\{x_{1}\dots x_{T}\}$, $x_i \in (A,C,G,T)$, a vector of observed bases, and a discrete set of hidden states, $\mathbf{z}=\{z_{1} \dots z_{T}\}$, $z_i \in (1 \dots L)$, the unknown position along the sequence.
+An HMM is described by three model parameters, the initial state distribution $\pi=p(\mathbf{z}_{1})$, the hidden state transition matrix $A=p(\mathbf{z}_{t}|\mathbf{z}_{t-1})$, and an emission distribution $S=p(\mathbf{x}_{n}|\mathbf{z}_{n})$. 
+$\pi$ and $A$ are fixed by the experimental conditions. 
+The inference problem in this model is to estimate the emission distribution, $S$, which acts as an implicit representation of our sequence,
 \begin{equation}
   S_{dl} = (1-e)p(\mathbf{x}_n = d |\mathbf{z}_{n} = l) + \frac{e}{4} 
 \end{equation}
 
 In practice, $S$ is a $4 \times L$ matrix with a multinomial distribution over the the possible nucleotides at each position (see Fig.~\ref{fig:inference_output}).
-We maximize the likelihood, $p(X \:|\: \theta)$, with respect to the model parameters using an implementation of the expectation-maximization (EM) algorithm \cite{Baum:1970}.
-Because the joint probability of data and states can be written as a product over the independent output reads, $p(\mathbf{X},\mathbf{Z}|\theta)=\prod_{n}p(\mathbf{X}^n,\mathbf{Z}^n|\theta)$, we can perform expectation updates on each read individually before averaging results in the maximization step.
-This shared parameter estimation scheme allows us to incorporate all the information provided in the reads while allowing an efficient, parallel calculation.
+We maximize the likelihood, $p(X \:|\: \theta)$, with respect to the model parameters using an implementation of the expectation-maximization algorithm \cite{Baum:1970,Bishop:2006}.
+The joint probability of data and states can be written as a product over the independent output reads, $p(\mathbf{X},\mathbf{Z}|\theta)=\prod_{n}p(\mathbf{X}^n,\mathbf{Z}^n|\theta)$, from which follows that we can perform expectation updates on each read individually before averaging results in the maximization step.
+The resulting shared parameter estimation scheme incorporates all reads while allowing an efficient, parallel calculation.
 
-After a convergence criteria on the complete data log likelihood is satisfied, we recover an estimated emission distribution $S$, which can be converted to an estimate for the DNA sequence by taking $\mathrm{\max_{d}} {S_{dl}}$.
+After a convergence criterion on the likelihood is satisfied, we recover an estimated emission distribution $S$, which can be converted to an estimate for the DNA sequence by taking $\mathrm{\max_{d}} {S_{dl}}$.
 The final inference accuracy is measured as the Levenstein distance between the input sequence and inferred sequence, normalized by $L$.
 The algorithm has complexity $O(NLT)$, where $T$ is $O(L)$ in the limit of $p=1$, and $O(L^2)$ in the limit of $p=0.5$.
 An example of the output of this algorithm showing the relationship between the true sequence and the inferred sequence distribution is shown in Fig.~\ref{fig:inference_output}\emph{~A}.
@@ -281,4 +281,5 @@ This work was supported by grant XXX (TODO: Chris, need numbers).
 
 \end{thebibliography}
 
+% \end{multicols}
 \end{document}
