@@ -59,8 +59,7 @@ However, the short length of the raw reads means high coverage is required for r
 %The development of high accuracy, single molecule, long-read sequencing technologies is critical for sustained progress in these applications \cite{Mak:2012}.
 Nanopore sequencing has emerged as a candidate to supercede current generation sequencing and allow for theoretically unlimited read length \cite{Branton:2008}.
 A number of strategies have been proposed, with the common basis of detecting individual nucleotides as they pass through a nanometer-scale aperture in a thin membrane separating two electrolytes \cite{Winters-Hilt:2004}.
-
-To date, a significant obstacle of this approach has been overcoming the fast stochastic motion of the individual molecules as they are driven through the pore \cite{Venkatesan:2011, Lu:2011}.
+To date, a significant obstacle of \jwm{nanopore approaches} has been overcoming the fast stochastic motion of the individual molecules as they are driven through the pore \cite{Venkatesan:2011, Lu:2011}.
 Ideally the passage of DNA through the pore would be unidirectional and each base would have a well-resolved signal.
 Recent methods have demonstrated an ability to controllably `ratchet' DNA molecules through a nanopore one base at a time, although motion of the molecule can still occur in both forward and backward directions within a single read \cite{Luan:2011, Olasagasti:2010, Cherf:2012}.
 Unidirectional motion remains difficult to reliably achieve, leading to a source of error in the read sequence not previously addressed by existing algorithms.
@@ -76,15 +75,21 @@ We model motion through the nanopore as one-dimensional diffusion with driving f
 \end{equation}
 Given an input DNA sequence of length $L$, we generate a single output read by stepping through the sequence with a bias $\bias$, at each step making a base-call with error probability $\err$, which is independent of error introduced due to backward motion. 
 Finally, we assume an appropriate method of making a base-call from the raw signal, which has been computationally studied in \cite{ODonnell:2013}.
-From this simple physical model, we generate a set of $N$ simulated reads $X_n$, which each have a unique length $T_{n} \ge L$ that depends on the forward bias.
-Here $N$ is a notion of sequence coverage in terms of identical molecules sequenced.
+From this simple physical model, we generate a set of $N$ simulated reads $X_n$, which each have a unique length $T_{n} \ge L$. 
+% \jwm{The expected length $T$ depends on the forward bias.} 
+% \jwm{In the limit $\bias \to 1$ there is no backward motion and $T \to L$.}
+% \jwm{For purely diffusive motion $\bias \to 1/2$ and $T \to \pi^2 L / 4$.}
+$N$ is a notion of sequence coverage in terms of identical molecules sequenced.
 Coverage could result from either amplification or resequencing of the initial molecule.
 A schematic representation of a nanopore sequencing device is shown in Fig.~\ref{fig:fig1}\emph{~A}.
 In Fig.~\ref{fig:fig1}\emph{~B} a series of random walks at several different forward biases is shown, along with the resulting read length distribution.
 The expected length of a read is 
 \begin{equation}
+  \label{eq:expected-T}
   \left\langle T  \right\rangle = \frac{1}{2(\bias-0.5)} L.
 \end{equation}
+\jwm{\com{ok there actually is something wrong here. In the limit $\bias \to 1$, the read length converges to $T \to L$. Conversely, in the limit $\bias \to 1/2$ however, the length tends to $T \to \pi^2 L^2 / 4$. Does this relationship follow from a linear expansion around $\bias = 1/2$ ?}}
+
 Given this set of $N$ read sequences, the statistical task is to infer the sequence most likely to have generated the observed data.
 An experiment similar to this model was demonstrated on very short sequences with tunneling current data in \cite{Ohshiro:2012}.
 Here we extend the approach to the longer sequences expected from a nanopore device.
@@ -116,6 +121,7 @@ The resulting shared parameter estimation scheme incorporates all reads while al
 After a convergence criterion on the likelihood is satisfied, we recover an estimated emission distribution $S$, which can be converted to an estimate for the DNA sequence by taking $\mathrm{\max_{d}} {S_{dl}}$.
 The final inference accuracy is measured as the Levenstein distance between the input sequence and inferred sequence, normalized by $L$.
 The algorithm has complexity $O(NLT)$, where $T$ is $O(L)$ in the limit of $\bias=1$, and $O(L^2)$ in the limit of $\bias=0.5$.
+\jwm{\com{note: this $O(L)$ vs $O(L^2)$ argument needs to be consistent with equation \ref{eq:expected-T}}}
 An example of the output of this algorithm showing the relationship between the true sequence and the inferred sequence distribution is shown in Fig.~\ref{fig:inference_output}\emph{~A}.
 Additionally, the column-wise entropy of the sequence inference, defined as $H_{l}=-\sum_{d}S_{dl}\log{S_{dl}}$, is shown in Fig.~\ref{fig:inference_output}\emph{~C}.
 Inference errors in this model are generally associated with increases in the inference entropy around the error position $l$, suggesting a possible approach that further analysis might systematically identify and remove the inference errors due to bidirectional motion.
@@ -144,7 +150,7 @@ The number of reads, $N$, is potentially unlimited, and we examine until converg
 \end{figure}
 
 A sweep across the parameter space is shown in Fig.~\ref{fig:parameter_sweeps}.
-For \emph{N}=1, the average inference accuracy goes roughly as {\raise.17ex\hbox{$\scriptstyle\sim$}}\emph{p}, a baseline measure of performance (Fig. \ref{fig:parameter_sweeps}\emph{~A}).
+For \emph{N}=1, the average inference accuracy goes roughly as {\raise.17ex\hbox{$\scriptstyle\sim$}}\jwm{$\bias$}, a baseline measure of performance (Fig. \ref{fig:parameter_sweeps}\emph{~A}).
 In Fig.~\ref{fig:parameter_sweeps}\emph{~B} we plot the relationship between forward bias and the number of reads.
 As expected, the strongest determinant of inference accuracy is the number of reads, \emph{N}.
 This is expected because each read contributes an independent observation of the input DNA sequence.
@@ -163,13 +169,14 @@ In this scenario, techniques such as the random walk model may allow increased t
 
 \section*{SUPPORTING MATERIAL}
 
-The full inference model is available at BPJ Online.
+The full inference model is available at BPJ Online. 
+\jwm{The source code used to perform the analysis in this paper will shortly be available via http://stochseq.github.io}
 
 \section*{ACKNOWLEDGEMENTS}
 
-The authors acknowledge useful discussions with D. Blei and D. Pfau.
-
-This work was supported by NIH grant U54-CA121852 (National Center for Multiscale Analysis of Genomic and Cellular Networks).
+The authors \jwm{gratefully acknowledge helpful} discussions with David Blei and David Pfau. 
+\jwm{KJE and CHW were supported by NIH grant U54-CA121852 (National Center for Multiscale Analysis of Genomic and Cellular Networks).}
+\jwm{JWM was supported through the NWO Rubicon Fellowship 680-50-1016.}
 
 \begin{thebibliography}{99}
 
