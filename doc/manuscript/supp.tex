@@ -1,38 +1,45 @@
-\documentclass[reqno]{amsart}
+\documentclass[10pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{authblk}
 \usepackage{amssymb}
 \usepackage{mathrsfs}
 \usepackage{hyperref}
-\usepackage{graphicx}
 \usepackage[usenames,dvipsnames]{color}
-\numberwithin{equation}{section}
 \usepackage{url}
 
-\oddsidemargin = 0.3in
-\evensidemargin = 0.3in
-\textwidth = 6in
+\input{macros.tex}
 
-%\input{aliases}
+\renewcommand{\thesection}{S\arabic{section}}   
+\renewcommand{\thetable}{S\arabic{table}}   
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\theequation}{S\arabic{equation}}
 
 \begin{document}
 
-\title{stochseq: Derivations}
-\author{Kevin Emmett}
+\title{Supporting Material for `Statistical Inference for Nanopore Sequencing with a Biased Random Walk Model'}
 
-\date{\today}
+\author{Kevin J. Emmett,{\authdag *} Jacob K. Rosenstein,{\authpar} Jan-Willem van de Meent,{\authddag} Ken L. Shepard,{\addrS} and Chris H. Wiggins{\authddag}}
+\affil{{\addrdag}Department of Physics and {\addrddag}Department of Applied Physics and Applied Math and {\addrS}Department of Electrical Engineering, Columbia University, New York, New York; and {\addrpar}School of Engineering, Brown University, Providence, Rhode Island}
+
+\date{}
 \maketitle
 
-\section{Notation}
+\section{Model Derivation}
 
-\subsection{Model Inputs}
+In this section we provide a derivation of the model used to generate the results in the paper.
+
+\subsection{Notation}
+
+\subsubsection{Model Inputs}
 \begin{itemize}
-\item $p$ : forward bias of random walk
-\item $e$ : base-call error rate
+\item $\bias$ : forward bias of random walk
+\item $\err$ : base-call error rate
 \item $L$ : length of input DNA sequence
 \item $N$ : number of i.i.d. reads of input DNA sequence
 \item $d$ : number of output symbols (DNA sequence: $d=4$)
 \end{itemize}
 
-\subsection{Data}
+\subsubsection{Data}
 \begin{itemize}
 \item $\mathbf{S} = \{s_1,\ldots,s_L\}$ : input DNA sequence.
 \begin{itemize}
@@ -51,9 +58,10 @@
 \end{itemize}
 \end{itemize}
 
-\subsection{Parameters}
+\subsubsection{Parameters}
 \begin{itemize}
-\item $\mathbf{\Theta} = (\mathbf{\Pi^i},\mathbf{\Pi^f},\mathbf{A},\mathbf{\Sigma},\mathbf{\Omega},\mathbf{\Phi})$ : set of model parameters.
+%\item $\mathbf{\Theta} = (\mathbf{\Pi^i},\mathbf{\Pi^f},\mathbf{A},\mathbf{\Sigma},\mathbf{\Omega},\mathbf{\Phi})$ : set of model parameters.
+\item $\mathbf{\Theta} = (\mathbf{\Pi^i},\mathbf{\Pi^f},\mathbf{A},\mathbf{\Sigma})$ : set of model parameters.
 \item $\mathbf{\Pi^i}^n = p(\mathbf{z}_1^n)$ : initial state vector for sequence $n$.
 \item $\mathbf{\Pi^f}^n = p(\mathbf{z}_{T_n}^n)$ : final state vector for sequence $n$.
 \item $\mathbf{A}_t^n = p(\mathbf{z}_{t}^n|\mathbf{z}_{t-1}^n)$ : state transition matrix. Can be time-independent or time-dependent.
@@ -61,17 +69,17 @@
 \begin{itemize}
 \item $\Sigma_{ld} = p(S_l=d)$
 \end{itemize}
-\item $\mathbf{\Omega}^n$ : forward transition vector for sequence $n$.
-\begin{itemize}
-\item $\Omega_t^n = p(z_t = z_{t-1} + 1)$
-\end{itemize}
-\item $\mathbf{\Phi}^n$ : read error vector for sequence $n$.
-\begin{itemize}
-\item $\Phi_t^n = p(\phi_t^n=1)$
-\end{itemize}
+%\item $\mathbf{\Omega}^n$ : forward transition vector for sequence $n$.
+%\begin{itemize}
+%\item $\Omega_t^n = p(z_t = z_{t-1} + 1)$
+%\end{itemize}
+%\item $\mathbf{\Phi}^n$ : read error vector for sequence $n$.
+%\begin{itemize}
+%\item $\Phi_t^n = p(\phi_t^n=1)$
+%\end{itemize}
 \end{itemize}
 
-\section{Probability Model}
+\subsection{Probability Model}
 The complete-data likelihood is written as
 \begin{equation}
 p(\mathbf{X}|\mathbf{\Theta}) = \displaystyle\sum_{\mathbf{Z}}p(\mathbf{X},\mathbf{Z}|\mathbf{\Theta}).
@@ -116,8 +124,8 @@ p(\mathbf{x}_{t}^n|\mathbf{z}_{t}^n,\mathbf{\Sigma}) = \displaystyle\prod_{l=1}^
 %p(\mathbf{X},\mathbf{Z}|\mathbf{\Theta})=\displaystyle\prod_{n=1}^N p(\mathbf{z}_1^n)
 %\end{equation}
 
-\section{Expectation Maximization (EM) for Hidden Markov Model}
-\subsection{E-Step}
+\subsection{Expectation Maximization (EM) for Hidden Markov Model}
+\subsubsection{E-Step}
 Calculate posterior distributions using the forward-backward algorithm. Two quantitites of interest: (1) the marginal posterior at each time step, denoted by $\gamma(\mathbf{z}_t^n)$,
 \begin{equation}
 \gamma(\mathbf{z}_t^n) = p(\mathbf{z}_t^n|\mathbf{x}_{1:T_n}^n,\mathbf{\Theta}^n),
@@ -126,7 +134,7 @@ and (2) the joint posterior between successive states, denoted by $\xi(\mathbf{z
 \begin{equation}
 \xi(\mathbf{z}_{t-1}^n,\mathbf{z}_t^n) = p(\mathbf{z}_{t-1}^n,\mathbf{z}_t^n|\mathbf{x}_{1:T_n}^n,\mathbf{\Theta}^n).
 \end{equation}
-To do this we use the standard forward-backward algorithm. First, construct the quantities
+To do this we use the forward-backward algorithm. First, construct the quantities
 \begin{equation}
 \alpha(\mathbf{z}_t^n)=p(\mathbf{x}_{1:t}^n,\mathbf{z}_t^n)
 \end{equation}
@@ -162,19 +170,18 @@ Then we can write $\gamma$ and $\xi$ as
 \xi(\mathbf{z}_{t-1}^n,\mathbf{z}_{t}^n) = c_t^n \hat{\alpha}(\mathbf{z}_{t-1}^n)p(\mathbf{x}_t^n|\mathbf{z}_t^n)p(\mathbf{z}_t^n|\mathbf{z}_{t-1}^n)\hat{\beta}(\mathbf{z}_t^n)
 \end{equation}
 
-\subsection{M-Step}
-In which maximum likelihood estimates of model parameters are computed.
+\subsubsection{M-Step}
+In the M-step, maximum likelihood estimates of the model parameters are computed.
 
-\subsubsection{Sequence Estimate}
 \begin{equation}
 \Sigma_{ld}^{n} = \frac{\displaystyle\sum_{t=1}^{T_n} \gamma(z_{tl}^n)x_{td}^n}{\displaystyle\sum_{t=1}^{T_n}\gamma(z_{tl}^n)}
 \end{equation}
 
-\subsubsection{Forward Transition Vector}
-\begin{equation}
-\Omega_t^n = \displaystyle\sum_{l=1}^{L-1} \xi(z_{t-1}^n=l,z_t^n=l+1)
-\end{equation}
-Sum the elements on the upper diagonal and normalize to get the probability of a forward transition at step $t$. The backward transition vector is simply $\mathbf{1}-\mathbf{\Omega^n}$, or the sum along the lower diagonal.
+%\subsubsection{Forward Transition Vector}
+%\begin{equation}
+%\Omega_t^n = \displaystyle\sum_{l=1}^{L-1} \xi(z_{t-1}^n=l,z_t^n=l+1)
+%\end{equation}
+%Sum the elements on the upper diagonal and normalize to get the probability of a forward transition at step $t$. The backward transition vector is simply $\mathbf{1}-\mathbf{\Omega^n}$, or the sum along the lower diagonal.
 
 %\subsubsection{Transition Matrix}
 %\begin{equation}
@@ -182,20 +189,19 @@ Sum the elements on the upper diagonal and normalize to get the probability of a
 %\end{equation}
 %Populate the transition matrix with elements from transition inference vector. Note that an alternative implementation of the algorithm uses a time-independent transition matrix, which just keeps the forward bias as the transition rates.
 
-\subsection{H-Step}
-In which model parameters are updated by combining results of multiple reads.
+\subsubsection{H-Step}
+In the H-step, model parameters are updated by combining results of multiple reads.
 
-\subsubsection{Sequence Inference}
 \begin{equation}
 \Sigma_{ld} = \frac{1}{N}\displaystyle\sum_{n=1}^{N} \Sigma_{ld}^{n}
 \end{equation}
 Use this as input $\mathbf{\Sigma}$ in the next iteration of EM.
 
-\subsubsection{Error Inference}
-To do. You can imagine deriving an estimate of where errors are likely to have occured in each read sequence. This could be a forward pass through the set of sequences where if a given location did not agree with the consensus at that point is liable to have been an error. Denote this vector by $\mathbf{\Phi}$.
+%\subsubsection{Error Inference}
+%To do. You can imagine deriving an estimate of where errors are likely to have occured in each read sequence. This could be a forward pass through the set of sequences where if a given location did not agree with the consensus at that point is liable to have been an error. Denote this vector by $\mathbf{\Phi}$.
 
-\section{Inference Evaluation}
-We define several ways of evaluating the sequence inference.
+\subsection{Inference Evaluation}
+We can define several ways of evaluating the sequence inference.
 \subsubsection{Inference Likelihood}
 $p(\mathbf{X})$ is the total data likelihood function, given by
 \begin{equation}
@@ -210,10 +216,10 @@ The normalized total inference entropy is given by
 \begin{equation}
 H_{\mathrm{seq}}^{\mathrm{tot}} = \frac{1}{L}\displaystyle\sum_{l=1}^{L} H_\mathrm{seq}^l
 \end{equation}
-\subsubsection{Path Inference Entropy}
-$H_\mathrm{path}^t$ measures the normalized entropy of the path inference at time $t$, where $\gamma_{tl} = p(z_t=l|\mathbf{X})$,
-\begin{equation}
-H_\mathrm{path}^t = -\frac{1}{\log L}\displaystyle\sum_{l=1}^{L} \gamma_{tl}\log\gamma_{tl}.
-\end{equation}
-This is a read sequence dependent measure.
+%\subsubsection{Path Inference Entropy}
+%$H_\mathrm{path}^t$ measures the normalized entropy of the path inference at time $t$, where $\gamma_{tl} = p(z_t=l|\mathbf{X})$,
+%\begin{equation}
+%H_\mathrm{path}^t = -\frac{1}{\log L}\displaystyle\sum_{l=1}^{L} \gamma_{tl}\log\gamma_{tl}.
+%\end{equation}
+%This is a read sequence dependent measure.
 \end{document}
