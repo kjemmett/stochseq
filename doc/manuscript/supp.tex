@@ -43,18 +43,18 @@ In this section we provide a derivation of the model used to generate the result
 \begin{itemize}
 \item $\mathbf{S} = \{s_1,\ldots,s_L\}$ : input DNA sequence.
 \begin{itemize}
-\item $s_l \in \{\mathrm{A,G,C,T}\}$ : base at position $l$ of input DNA sequence.
+  \item[$\cdot$] $s_l \in \{\mathrm{A,G,C,T}\}$ : base at position $l$ of input DNA sequence.
 \end{itemize}
 \item $\mathbf{Z} =\{\mathbf{Z}^1,\ldots,\mathbf{Z}^N\}$ : set of $N$ latent state sequences.
 \begin{itemize}
-\item $T_n$ : length of read sequence $n$
-\item $\mathbf{Z}^n = \mathbf{z}^n_{1:T_n} = \{z^n_1,\ldots,z^n_{T_n}\}$ : latent state sequence $n$
-\item $z_t^n \in \{1,\ldots,L\}$ : latent state at position $t$ of read sequence $n$.
+\item[$\cdot$] $T_n$ : length of read sequence $n$
+\item[$\cdot$] $\mathbf{Z}^n = \mathbf{z}^n_{1:T_n} = \{z^n_1,\ldots,z^n_{T_n}\}$ : latent state sequence $n$
+\item[$\cdot$] $z_t^n \in \{1,\ldots,L\}$ : latent state at position $t$ of read sequence $n$.
 \end{itemize}
 \item $\mathbf{X} = \{\mathbf{X}^1,\ldots,\mathbf{X}^N\}$ : set of $N$ observed state sequences.
 \begin{itemize}
-\item $\mathbf{X}^n = \mathbf{x}_{1:T_n}^n = \{x_1^n,\ldots,x_{T_n}^n\}$ : observed base sequence $n$.
-\item $x_t^n \in \{\mathrm{A,G,C,T}\}$ : observed base at position $t$ of read sequence $n$.
+\item[$\cdot$] $\mathbf{X}^n = \mathbf{x}_{1:T_n}^n = \{x_1^n,\ldots,x_{T_n}^n\}$ : observed base sequence $n$.
+\item[$\cdot$] $x_t^n \in \{\mathrm{A,G,C,T}\}$ : observed base at position $t$ of read sequence $n$.
 \end{itemize}
 \end{itemize}
 
@@ -67,7 +67,7 @@ In this section we provide a derivation of the model used to generate the result
 \item $\mathbf{A}_t^n = p(\mathbf{z}_{t}^n|\mathbf{z}_{t-1}^n)$ : state transition matrix. Can be time-independent or time-dependent.
 \item $\mathbf{\Sigma}$ : sequence estimate matrix
 \begin{itemize}
-\item $\Sigma_{ld} = p(S_l=d)$
+  \item[$\cdot$] $\Sigma_{ld} = p(S_l=d)$
 \end{itemize}
 %\item $\mathbf{\Omega}^n$ : forward transition vector for sequence $n$.
 %\begin{itemize}
