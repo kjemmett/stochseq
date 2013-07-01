@@ -43,7 +43,7 @@
 \begin{abstract}
 {Nanopore sequencing promises long read-lengths and single-molecule resolution, but the stochastic motion of the DNA molecule inside the pore is a current barrier to high accuracy reads.
 We develop a method of statistical inference that explicitly accounts for this error and demonstrate that high accuracy (\textgreater 99.9\%) sequence inference is feasible even under highly diffusive motion by using a hidden Markov model to jointly analyze multiple stochastic reads.
-Using this model, we place bounds on achievable inference under a range of experimental parameters.}
+Using this model, we place bounds on achievable inference accuracy under a range of experimental parameters.}
 {Received for publication 1 June 2013 and in final form 1 June 2013.}
 {*Correspondence: kje@phys.columbia.edu.}
 \end{abstract}
@@ -59,10 +59,10 @@ However, the short length of the raw reads means high coverage is required for r
 %The development of high accuracy, single molecule, long-read sequencing technologies is critical for sustained progress in these applications \cite{Mak:2012}.
 Nanopore sequencing has emerged as a candidate to supercede current generation sequencing and allow for theoretically unlimited read length \cite{Branton:2008}.
 A number of strategies have been proposed, with the common basis of detecting individual nucleotides as they pass through a nanometer-scale aperture in a thin membrane separating two electrolytes \cite{Winters-Hilt:2004}.
-To date, a significant obstacle of \jwm{nanopore approaches} has been overcoming the fast stochastic motion of the individual molecules as they are driven through the pore \cite{Venkatesan:2011, Lu:2011}.
+To date, a significant obstacle of nanopore approaches has been overcoming the fast stochastic motion of the individual molecules as they are driven through the pore \cite{Venkatesan:2011, Lu:2011}.
 Ideally the passage of DNA through the pore would be unidirectional and each base would have a well-resolved signal.
 Recent methods have demonstrated an ability to controllably `ratchet' DNA molecules through a nanopore one base at a time, although motion of the molecule can still occur in both forward and backward directions within a single read \cite{Luan:2011, Olasagasti:2010, Cherf:2012}.
-Unidirectional motion remains difficult to reliably achieve, leading to a source of error in the read sequence not previously addressed by existing algorithms.
+Unidirectional motion remains difficult to reliably achieve, leading to a source of error in the read sequence not previously addressed by existing models.
 
 In this letter, we consider a simple physical model of DNA translocation as a one-dimensional biased random walk and analyze how diffusive molecular motion affects the achievable read accuracy of nanopore sequencing.
 To do so, we simulate noisy data where the true sequence is unknown, and develop a statistical technique to estimate the most likely DNA sequence associated with the simulated read signal.
@@ -88,7 +88,7 @@ The expected length of a read is
   \label{eq:expected-T}
   \left\langle T  \right\rangle = \frac{1}{2(\bias-0.5)} L.
 \end{equation}
-\jwm{\com{ok there actually is something wrong here. In the limit $\bias \to 1$, the read length converges to $T \to L$. Conversely, in the limit $\bias \to 1/2$ however, the length tends to $T \to \pi^2 L^2 / 4$. Does this relationship follow from a linear expansion around $\bias = 1/2$ ?}}
+%\jwm{\com{ok there actually is something wrong here. In the limit $\bias \to 1$, the read length converges to $T \to L$. Conversely, in the limit $\bias \to 1/2$ however, the length tends to $T \to \pi^2 L^2 / 4$. Does this relationship follow from a linear expansion around $\bias = 1/2$ ?}}
 
 Given this set of $N$ read sequences, the statistical task is to infer the sequence most likely to have generated the observed data.
 An experiment similar to this model was demonstrated on very short sequences with tunneling current data in \cite{Ohshiro:2012}.
@@ -120,11 +120,12 @@ The resulting shared parameter estimation scheme incorporates all reads while al
 
 After a convergence criterion on the likelihood is satisfied, we recover an estimated emission distribution $S$, which can be converted to an estimate for the DNA sequence by taking $\mathrm{\max_{d}} {S_{dl}}$.
 The final inference accuracy is measured as the Levenstein distance between the input sequence and inferred sequence, normalized by $L$.
-The algorithm has complexity $O(NLT)$, where $T$ is $O(L)$ in the limit of $\bias=1$, and $O(L^2)$ in the limit of $\bias=0.5$.
-\jwm{\com{note: this $O(L)$ vs $O(L^2)$ argument needs to be consistent with equation \ref{eq:expected-T}}}
+The algorithm has complexity $O(NLT)$, where $T$ is $O(L)$ in the limit of $\bias=1$.
 An example of the output of this algorithm showing the relationship between the true sequence and the inferred sequence distribution is shown in Fig.~\ref{fig:inference_output}\emph{~A}.
-Additionally, the column-wise entropy of the sequence inference, defined as $H_{l}=-\sum_{d}S_{dl}\log{S_{dl}}$, is shown in Fig.~\ref{fig:inference_output}\emph{~C}.
-Inference errors in this model are generally associated with increases in the inference entropy around the error position $l$, suggesting a possible approach that further analysis might systematically identify and remove the inference errors due to bidirectional motion.
+Additionally, the column-wise entropy of the sequence inference, defined as $H_{l}=-\sum_{d}S_{dl}\log{S_{dl}}$, is plotted in Fig.~\ref{fig:inference_output}\emph{~C}.
+As shown, large regions of the sequence are correctly inferred, with errors in the form of spurious insertion and deletion artifacts along the sequence, due to regions where backwards motion and repeated base patterns cannot be distinguished.
+Inference errors in this model are generally associated with increases in the inference entropy around the error position $l$, where the algorithm cannot distinguish between backwards motion and repeated base patterns.
+This suggests a possible approach that further analysis might employ to systematically identify and remove the inference errors due to bidirectional motion.
 
 % figure 2: inference output
 \begin{figure}
@@ -150,7 +151,7 @@ The number of reads, $N$, is potentially unlimited, and we examine until converg
 \end{figure}
 
 A sweep across the parameter space is shown in Fig.~\ref{fig:parameter_sweeps}.
-For \emph{N}=1, the average inference accuracy goes roughly as {\raise.17ex\hbox{$\scriptstyle\sim$}}\jwm{$\bias$}, a baseline measure of performance (Fig. \ref{fig:parameter_sweeps}\emph{~A}).
+For \emph{N}=1, the average inference accuracy goes roughly as {\raise.17ex\hbox{$\scriptstyle\sim$}}$\bias$, a baseline measure of performance (Fig. \ref{fig:parameter_sweeps}\emph{~A}).
 In Fig.~\ref{fig:parameter_sweeps}\emph{~B} we plot the relationship between forward bias and the number of reads.
 As expected, the strongest determinant of inference accuracy is the number of reads, \emph{N}.
 This is expected because each read contributes an independent observation of the input DNA sequence.
@@ -169,14 +170,13 @@ In this scenario, techniques such as the random walk model may allow increased t
 
 \section*{SUPPORTING MATERIAL}
 
-The full inference model is available at BPJ Online. 
-\jwm{The source code used to perform the analysis in this paper will shortly be available via http://stochseq.github.io}
+The full inference model is available at BPJ Online. Source code used to perform the analysis is available at http://stochseq.github.io.
 
 \section*{ACKNOWLEDGEMENTS}
 
-The authors \jwm{gratefully acknowledge helpful} discussions with David Blei and David Pfau. 
-\jwm{KJE and CHW were supported by NIH grant U54-CA121852 (National Center for Multiscale Analysis of Genomic and Cellular Networks).}
-\jwm{JWM was supported through the NWO Rubicon Fellowship 680-50-1016.}
+The authors gratefully acknowledge helpful discussions with David Blei and David Pfau.
+
+KJE and CHW were supported by NIH grant U54-CA121852 (National Center for Multiscale Analysis of Genomic and Cellular Networks). JWM was supported through the NWO Rubicon Fellowship 680-50-1016. KLS was supported by NIH grant R01-HG006879.
 
 \begin{thebibliography}{99}
 
