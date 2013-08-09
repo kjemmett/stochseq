@@ -9,7 +9,7 @@
 \jno{kxl014} %journal number
 \gridframe{N} %option for grid around the text "Y" or "N"
 \cropmark{N} %option for cropmark around the text "Y" or "N"
-        
+
 \doi{doi: XX.XXXX/biophysj.XXX.XXXXXX}% DOI number in the copyright line
 
 % macros (from macros.tex)
@@ -75,7 +75,7 @@
 {Nanopore sequencing promises long read-lengths and single-molecule resolution, but the stochastic motion of the DNA molecule inside the pore is a current barrier to high accuracy reads.
 We develop a method of statistical inference that explicitly accounts for this error and demonstrate that high accuracy (\textgreater 99.9\%) sequence inference is feasible even under highly diffusive motion by using a hidden Markov model to jointly analyze multiple stochastic reads.
 Using this model, we place bounds on achievable inference accuracy under a range of experimental parameters.}
-{Received for publication 10 July 2013 and in final form 10 July 2013.}
+{Received for publication 31 July 2013 and in final form 31 July 2013.}
 {*Correspondence: kje@phys.columbia.edu.}
 \end{abstract}
 
@@ -88,21 +88,21 @@ A number of strategies have been proposed, with the common basis of detecting in
 To date, a significant obstacle of nanopore approaches has been overcoming the fast stochastic motion of the individual molecules as they are driven through the pore \cite{Venkatesan:2011, Lu:2011}.
 Ideally, passage of DNA through the pore would be unidirectional and each base would have a well-resolved signal.
 Recent methods have demonstrated an ability to controllably `ratchet' DNA molecules through a nanopore one base at a time, although motion of the molecule can still occur in both forward and backward directions within a single read \cite{Luan:2011, Olasagasti:2010, Cherf:2012}.
-Unidirectional motion remains difficult to reliably achieve, leading to a source of error in the read sequence \kje{recognized}, but not previously addressed, by existing models.
+Unidirectional motion remains difficult to reliably achieve, leading to a source of error in the read sequence recognized, but not previously addressed, by existing models.
 
 %\kje{For accurate nanopore sequencing, diffusion should be minimized, as backwards motion will result in erroneous base-calls.}
-\kje{In this letter, we analyze the effect of diffusive motion on achievable read accuracy and propose a statistical method to reduce this error.}
+In this letter, we analyze the effect of diffusive motion on achievable read accuracy and propose a statistical method to reduce this error.
 %To do so, we simulate noisy data where the true sequence is unknown, and develop a statistical technique to estimate the most likely DNA sequence associated with the simulated read signal.
 Our method uses hidden Markov models (HMMs), which have recently been used to study multi-base resolution in a nanopore sequencer \cite{Timp:2012}, but have not yet been applied to the problem of diffusive motion inside the pore.
 We show that combining multiple reads from a given input DNA sequence allows accurate estimates of the sequence, both in the presence of highly diffusive molecular motion and high base-call error rates.
 
-\kje{Polymer translocation through a nanopore is modeled as one-dimensional diffusion with driving force $F$ and unit base step size $a$ \cite{Lubensky:1999}.}
+Polymer translocation through a nanopore is modeled as one-dimensional diffusion with driving force $F$ and a dimensionless step size $a/\tau=1$ \cite{Lubensky:1999}.
 %We model motion through the nanopore as one-dimensional diffusion with driving force $F$ and unit base step size $a$, and assume no DNA-pore interaction.
 Assuming no DNA-pore interaction, we can write this as a random walk with fixed forward bias \cite{Berg:1993}
-\kje{\begin{equation}
+\begin{equation}
 %  \bias = \frac{1}{2} + \frac{Fa}{4k_{B}T},
   \bias = \frac{1}{\exp(-Fa/k_{B}T) + 1}
-\end{equation}}
+\end{equation}
 %\kje{with diffusion coefficient $D=a^2/2\tau$ and drift velocity $v = a(2\bias-1)/\tau$.} 
 Given an input DNA sequence of length $L$, we generate a single output read by stepping through the sequence with a bias $\bias$, at each step making a base-call with error probability $\err$, which is independent of error introduced due to backward motion. 
 Finally, we assume an appropriate method of making a base-call from the raw signal, which has been computationally studied in \cite{ODonnell:2013}.
@@ -150,8 +150,8 @@ An example of the output of this algorithm showing the relationship between the 
 Additionally, the column-wise entropy of the sequence inference, defined as $H_{l}=-\sum_{d}S_{dl}\log{S_{dl}}$, is plotted in Fig.~\ref{fig:inference_output}\emph{~C}.
 %\kje{As shown, large regions of the sequence are correctly inferred, with errors in the form of spurious insertion and deletion artifacts.}
 %\kje{Inference errors in are generally associated with increases in the inference entropy around the error position $l$, where the algorithm cannot distinguish between backwards motion and repeat base patterns.}
-\kje{Inference errors, which can be identified with insertion and deletion artifacts where the algorithm cannot distinguish between backwards motion and repeat base patterns, are generally associated with increases in $H_{l}$.}
-\kje{This suggests a possible approach that further analysis might employ to systematically identify and remove inference errors due to bidirectional motion.}
+Inference errors, which can be identified with insertion and deletion artifacts where the algorithm cannot distinguish between backwards motion and repeat base patterns, are associated with increases in $H_{l}$.
+This suggests a possible approach that further analysis might employ to systematically identify and remove inference errors due to bidirectional motion.
 
 % figure 2: inference output
 \begin{figure}
@@ -162,7 +162,6 @@ Additionally, the column-wise entropy of the sequence inference, defined as $H_{
 \end{figure}
 
 We examined the performance of the algorithm over a range of parameter values in order to identify a minimal experimental configuration capable of sequence inference at a given accuracy.
-\kje{The specific quantity of interest is the driving force, $F$.}
 First, we consider how to select realistic values for our parameters.
 $\bias=0.5$ corresponds to completely symmetric diffusion and is unlikely to reach the end of the sequence without first exiting from the {\it cis} side of the nanopore (these reads are discarded in the data generation).
 $\bias=1.0$ corresponds to nondiffusive motion and is a trivial case in this model.
@@ -187,15 +186,15 @@ This is expected because each read contributes an independent observation of the
 We observe an inference error rate that falls rapidly with increasing \emph{N}, even at highly diffusive motion. 
 Generally, the achievable accuracy converges at a fixed $\bias$ even with the addition of more reads.
 This asymptotic performance is plotted in Fig.~\ref{fig:parameter_sweeps}\emph{~C}.
-A threshold accuracy of 99\% is achievable for $\bias=0.8$ \kje{($Fa/k_{B}T=2.88$)}; an accuracy exceeding 99.9\% is achievable with $\bias>0.88$ \kje{($Fa/k_{B}T\lesssim2$)}.
-\kje{These results suggest accurate sequencing is possible at driving forces much lower than previously thought.}
+A threshold accuracy of 99\% is achievable for $\bias=0.8$ ($Fa/4k_{B}T=0.35$); an accuracy exceeding 99.9\% is achievable with $\bias>0.88$ ($Fa/4k_{B}T>0.50$).
+These results suggest accurate sequencing is possible at driving forces much lower than previously thought.
 Finally, inference accuracy is independent of the base-call error rate, provided each nucleotide in the sequence is visited sufficient times (Fig.~\ref{fig:parameter_sweeps}\emph{~D}).
 
-Precise control over the motion of the DNA sequence inside the nanopore has previously been assumed a necessary prerequisite for accurate nanopore sequencing.
-Here we have demonstrated that high accuracy inference is possible, even in the presence of diffusive motion, with the integration of data under an appropriate statistical model. 
+Precise control over the motion of the DNA sequence inside the nanopore has been assumed a necessary prerequisite for accurate nanopore sequencing.
+We have demonstrated that high accuracy inference is possible, even in the presence of diffusive motion, with the integration of data under an appropriate statistical model. 
 The strength of the method lies in the way in which multiple reads of the input sequence are independently modeled and then iteratively combined to yield a joint estimate of the true sequence.
 Under this model, reasonably accurate sequence inference is achievable even within the experimental constraints of today's nanopore devices ($\bias\approx 0.7$).
-\kje{Additionally, more complicated translocation dynamics can be incorporated into the model through suitable modification to the transition matrix.}
+Additionally, more complicated translocation dynamics can be incorporated in model through modification to the transition matrix.
 Designers of nanopore sequencers may find that there is a tradeoff between sequencing speed and maintaining unidirectional molecular motion.
 In this scenario, techniques such as the random walk model may allow increased throughput without a loss of accuracy.
 

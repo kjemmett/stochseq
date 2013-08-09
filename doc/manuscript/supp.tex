@@ -7,8 +7,26 @@
 \usepackage[usenames,dvipsnames]{color}
 \usepackage{url}
 
-\input{macros.tex}
+% macros
 
+%\input{macros.tex}
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\ifrac}[2]{#1 \:/\: #2}
+
+%% MODEL TERMS
+\newcommand{\bias}{\beta}
+\newcommand{\err}{\epsilon}
+
+%% ADDRESS LINE MACROS
+\def\authdag{{\fontsize{5.65}{6}$^{\mbox{\textdagger}}$}}
+\def\authddag{{\fontsize{5.65}{6}$^{\mbox{\textdaggerdbl}}$}}
+\def\authS{{\fontsize{5.65}{6}$^{\mbox{\textsection}}$}}
+\def\authpar{{\fontsize{5.65}{6}$^{\mbox{\textparagraph}}$}}
+\def\addrdag{{\fontsize{7.07}{8}$^{\mbox{\textdagger}}$}}
+\def\addrddag{{\fontsize{7.07}{8}$^{\mbox{\textdaggerdbl}}$}}
+\def\addrS{{\fontsize{7.07}{8}$^{\mbox{\textsection}}$}}
+\def\addrpar{{\fontsize{7.07}{8}$^{\mbox{\textparagraph}}$}}
 \renewcommand{\thesection}{S\arabic{section}}   
 \renewcommand{\thetable}{S\arabic{table}}   
 \renewcommand{\thefigure}{S\arabic{figure}}
