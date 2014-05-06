@@ -96,22 +96,35 @@ In this letter, we analyze the effect of diffusive motion on achievable read acc
 Our method uses hidden Markov models (HMMs), which have recently been used to study multi-base resolution in a nanopore sequencer \cite{Timp:2012}, but have not yet been applied to the problem of diffusive motion inside the pore.
 We show that combining multiple reads from a given input DNA sequence allows accurate estimates of the sequence, both in the presence of highly diffusive molecular motion and high base-call error rates.
 
-\kje{
-Polymer translocation through a nanopore is modeled as one-dimensional diffusion with driving force $F$ and a sampling interval equal to unit-nucleotide steps, $\tau=a/\left\langle\bar{v}\right\rangle$.
-Here $a$ is the nucleotide width, and $\left\langle\bar{v}\right\rangle=F/\gamma$ is the average translocation velocity, where the drag coefficient $\gamma=1.27 \mathrm{\mu g/s}$ is calibrated using \cite{Lu:2011}.
-The forward bias can be modeled with a dimensionless parameter $\beta$, given by %\cite{Berg:1993}
+\jwm{
+Assuming no DNA-pore interaction, polymer translocation can be modeled as one-dimensional diffusive motion with drift, where the probability of a displacement $x$ over a time interval $t$ is given by
 \begin{equation}
-\label{eq:bias_term}
-\bias = \frac{1}{\exp(-Fa/k_{B}T) + 1}.
+  p(x, t) 
+  =  
+  \frac{1}
+       {\sqrt{4 \pi D t}}
+  \exp 
+  \left[ 
+    - \frac{(x - v t)^2}
+           {4 D t} 
+  \right]
+  ~.
 \end{equation}
-In this formulation, a transition, $\delta$, can occur forward or backward a given number of bases with probability $P(\tau,\delta)$.
-Assuming no DNA-pore interaction, we can write this as a Gaussian diffusion kernel with transition probabilities
+The drift velocity $v = F/\gamma$ is determined by the driving force $F$ and a drag coefficient $\gamma$, which also determines the diffusion constant $D = \gamma \: k_B T$ via fluctuation-dissipation relationship.
+We take $\gamma = 1.27 \mathrm{\mu g/s}$ following \cite{Lu:2011} and assume $F$ is tuned to obtain an expected displacement $v \tau = a$ over the sampling interval $\tau$ is one nucleotide distance $a$. 
+We now define a discretized sequence position $z = \mathrm{nint}(x / a)$. 
+The probability of moving to position $z_s$ given a previous position $z_{s-1}$ can be expressed as
 \begin{equation}
 \label{eq:gaussian_kernel}
-P(\tau,\delta) = \int\limits_{-3a/2+\delta a}^{-a/2+\delta a}\frac{1}{\sqrt{4\pi D\tau}}\exp\left(-\frac{x^2}{4D\tau}\right)\,dx
+p(z_s \,|\, z_{s-1}) 
+=
+\int\limits_{a (z_s - z_{s-1}) - a/2}^{a (z_s - z_{s-1}) + a/2}
+p(x, \tau) \: dx
 \end{equation}
-with diffusion coefficient $D=a^2/2\tau$.
+% = \int\limits_{-3a/2+\delta a}^{-a/2+\delta a}\frac{1}{\sqrt{4\pi D\tau}}\exp\left(-\frac{x^2}{4D\tau}\right)\,dx
+% \end{equation}
 }
+
 % Polymer translocation through a nanopore is modeled as one-dimensional diffusion with driving force $F$ and a dimensionless step size $a/\tau=1$ \cite{Lubensky:1999}.
 %We model motion through the nanopore as one-dimensional diffusion with driving force $F$ and unit base step size $a$, and assume no DNA-pore interaction.
 % Assuming no DNA-pore interaction, we can write this as a random walk with fixed forward bias \cite{Berg:1993}
