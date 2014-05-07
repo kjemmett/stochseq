@@ -162,8 +162,8 @@ Here we extend the approach to the longer sequences expected from a nanopore dev
 % figure 1. cartoon and random walk model
 \begin{figure}
   \centering
-  \includegraphics[width=3.25in]{fig/fig1_new.pdf}
-  \caption{Random walk model of nanopore sequencing. (A) Schematic representation of an idealized nanopore sequencing device. (B) Relationship between forward bias, driving force and sampling frequency. Quoted sampling frequency is the minimum required for single base resolution. (C) Transition probabilities and (D) read length distributions for different sampling frequencies (sequence length $L=100$).}
+  \includegraphics[width=3.25in]{fig/new_fig1_withcartoon.pdf}
+  \caption{Random walk model of nanopore sequencing. (A) Schematic representation of an idealized nanopore sequencing device. Relationship between forward bias, driving force and sampling frequency. Quoted sampling frequency is the minimum required for single base resolution. (B) Transition probabilities and (C) read length distributions for different sampling frequencies (sequence length $L=100$).}
   \label{fig:fig1}
 \end{figure}
 
@@ -228,7 +228,7 @@ Generally, the achievable accuracy converges at a fixed $\bias$ even with the ad
 This asymptotic performance is plotted in Fig.~\ref{fig:parameter_sweeps}\emph{~C}.
 A threshold accuracy of 99\% is achievable for $\bias=0.8$ ($Fa/4k_{B}T=0.35$); an accuracy exceeding 99.9\% is achievable with $\bias>0.88$ ($Fa/4k_{B}T>0.50$).
 These results suggest accurate sequencing is possible at driving forces much lower than previously thought.
-Finally, inference accuracy is \kje{robust to base-call error rates up to 30\%}, provided each nucleotide in the sequence is visited sufficient times (Fig.~\ref{fig:parameter_sweeps}\emph{~D}).
+Finally, inference accuracy is \kje{robust to base-call error rates up to 25\%}, provided each nucleotide in the sequence is visited sufficient times (Fig.~\ref{fig:parameter_sweeps}\emph{~D}).
 
 \kje{Unidirectional} motion of the DNA sequence inside the nanopore has been assumed a necessary prerequisite for accurate nanopore sequencing.
 % Precise control over the motion of the DNA sequence inside the nanopore has been assumed a necessary prerequisite for accurate nanopore sequencing.
