@@ -197,8 +197,8 @@ The number of reads, $N$, is potentially unlimited, and we examine until converg
   \label{fig:parameter_sweeps}
 \end{figure}
 
-
-% We quote results in terms of the minimum frequency $f$ required for single base resolution.
+\begingroup
+\setlength{\thickmuskip}{5mu}
 A sweep across the parameter space is shown in Fig.~\ref{fig:parameter_sweeps}.
 In each sweep, the error rate was set to $\epsilon=0.05$ unless otherwise specified.
 In Fig.~\ref{fig:parameter_sweeps}\emph{~A} we vary the forward bias for a fixed number of reads.
@@ -212,6 +212,7 @@ Finally, inference accuracy is \kje{robust to base-call error rates up to 25\%},
 \kje{From this data, we conclude a threshold accuracy of 99\% is achievable for $\xi>2$ at an error rate $\epsilon=0.2$.
 Following \cite{Larkin:2013} and letting $\gamma=12.7$ (???), this corresponds to a minimum sampling frequency of $\approx20\mhz$, well within todays measurement bandwidths.
 Previous estimates have placed a threshold for accurate sequencing in the GHz sampling range; these results suggest accurate sequencing is possible at sampling frequencies nearly two orders of magnitude lower.}
+\endgroup
 
 Unidirectional motion of the DNA sequence inside the nanopore has been assumed a necessary prerequisite for accurate nanopore sequencing.
 We have demonstrated that accurate inference is possible, even in the presence of diffusive motion, with the integration of data under an appropriate statistical model.
