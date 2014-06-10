@@ -8,6 +8,7 @@
 \usepackage{amsmath,lastpage,bm,textcomp}%mathtime
 \usepackage{multicol}
 \usepackage{cite} % my own added packages
+
 \jno{kxl014} %journal number
 \gridframe{N} %option for grid around the text "Y" or "N"
 \cropmark{N} %option for cropmark around the text "Y" or "N"
@@ -91,8 +92,7 @@ In this letter, we analyze the effect of diffusive motion on achievable read acc
 The method uses hidden Markov models (HMMs), which have recently been used to study multi-base resolution in a nanopore sequencer \cite{Timp:2012}, but have not yet been applied to the problem of diffusive motion inside the pore.
 We show that combining multiple reads from an input DNA sequence allows accurate estimates of the sequence, both in the presence of highly diffusive molecular motion and high base-call error rates.
 
-\jwm{
-Assuming no DNA-pore interaction, polymer translocation can be modeled as one-dimensional diffusion with drift, where the probability of a displacement $x$ in a time interval $t$ is given by
+Assuming no DNA-pore interaction, polymer translocation is modeled as one-dimensional diffusion with drift, with probability of displacement $x$ in time interval $t$ given by
 \begin{equation}
   p(x, t) 
   =  
@@ -115,8 +115,9 @@ p(z_s \,|\, z_{s-1})
 =
 \int\limits_{a (z_s - z_{s-1}) - a/2}^{a (z_s - z_{s-1}) + a/2}
 p(x, \tau) \: dx
+~.
 \end{equation}
-}
+
 
 % Polymer translocation through a nanopore is modeled as one-dimensional diffusion with driving force $F$ and a dimensionless step size $a/\tau=1$ \cite{Lubensky:1999}.
 %We model motion through the nanopore as one-dimensional diffusion with driving force $F$ and unit base step size $a$, and assume no DNA-pore interaction.
@@ -129,13 +130,13 @@ p(x, \tau) \: dx
 
 Given an input DNA sequence of length $L$, we generate a single output read by stepping through the sequence with transition probabilities $p(z_s \,|\, z_{s-1}) $, at each step making a base-call with error probability $\err$, which is independent of error introduced due to backward motion.
 Finally, we assume an appropriate method of making a base-call from the raw signal, which has been computationally studied in \cite{ODonnell:2013}.
-From this simple physical model, we generate a set of $N$ simulated reads $X_n$, each having a unique length $T_{n}$.
-$N$ is a notion of sequence coverage in terms of identical molecules sequenced, which could result from either amplification or resequencing of the initial molecule.
+From this simple model, we generate a set of $N$ simulated reads $X_n$, each having a unique length $T_{n}$.
+$N$ is the sequence coverage, in terms of identical molecules sequenced, which could result from either amplification or resequencing of the initial molecule.
 \kje{
 A schematic representation of a nanopore sequencing device is shown in Fig.~\ref{fig:fig1}\emph{~A}.
 The relationship between forward bias, drag coefficient, and sampling frequency required for single base resolution is shown in Fig.~\ref{fig:fig1}\emph{~B}.
-In Fig.~\ref{fig:fig1}\emph{~C} we plot $p(z_s \,|\, z_{s-1})$ at several different forward biases.
-In Fig.~\ref{fig:fig1}\emph{~D} the distribution of read lengths at these forward biases is shown.
+In Fig.~\ref{fig:fig1}\emph{~C} we plot $p(z_s \,|\, z_{s-1})$ at different forward biases.
+Fig.~\ref{fig:fig1}\emph{~D} shows the distribution of read lengths at these forward biases.
 }
 
 \end{multicols}
@@ -162,15 +163,15 @@ The inference problem in this model is to estimate the emission distribution, $S
   S_{dl} = (1-\err)p(\mathbf{x}_n = d\:|\:\mathbf{z}_{n} = l) + \err/4
 \end{equation}
 In practice, $S$ is a $4 \times L$ matrix with a multinomial distribution over the possible nucleotides at each position (see Fig.~\ref{fig:inference_output}).
-\kje{We use the expectation-maximization algorithm to maximize the likelihood, $p(X \:|\: \theta)$, with respect to the model parameters \cite{Baum:1970}.}
+We use the expectation-maximization algorithm to maximize the likelihood, $p(X \:|\: \theta)$, with respect to the model parameters \cite{Baum:1970}.
 The joint probability of data and states can be written as a product over the independent output reads, $p(\mathbf{X},\mathbf{Z}\:|\:\theta)=\prod_{n}p(\mathbf{X}_n,\mathbf{Z}_n\:|\:\theta)$, from which follows that we can perform expectation updates on each read individually before averaging results in the maximization step (see Supporting Material for full model derivation).
 The resulting shared parameter estimation scheme incorporates all reads while allowing an efficient, parallel calculation.
 
-After a convergence criterion on the likelihood is satisfied (${\Delta}LL<10^{-5}$), we recover an estimated emission distribution $S$, which we convert to an estimate for the DNA sequence by taking $\mathrm{\max_{d}} {S_{dl}}$.
+After satisfying a convergence criterion on the likelihood (${\Delta}LL<10^{-5}$), we recover an estimated emission distribution $S$, which we convert to an estimate for the DNA sequence by taking $\mathrm{\max_{d}} {S_{dl}}$.
 The final inference accuracy is measured as the Levenstein distance between the input sequence and inferred sequence, normalized by $L$.
-The algorithm has complexity $O(NLT)$, where $T$ is $O(L)$ in the limit of $\bias=1$.
-\kje{A run of 100 reads of $L=1\:$kb DNA completes in under fifteen minutes.}
-An example of the output of this algorithm showing the relationship between the true sequence and the inferred sequence distribution is shown in Fig.~\ref{fig:inference_output}\emph{~A}.
+The algorithm has complexity $O(NLT)$, where $T$ is $O(L)$ in the limit of $\xi\rightarrow\infty$.
+A run of 100 reads of $L=1\:$kb DNA completes in under five minutes.
+An example of the output of this algorithm showing the relationship between the true sequence and the inferred sequence distribution is shown in Fig.~\ref{fig:inference_output}.
 
 % figure 2: inference output
 \begin{figure}
@@ -184,8 +185,8 @@ We examined the performance of the algorithm over a range of parameter values in
 First, we consider how to select realistic values for our parameters.
 $\xi=0$ corresponds to completely symmetric diffusion and is unlikely to reach the end of the sequence without first exiting from the {\it cis} side of the nanopore (these reads are discarded in the data generation).
 $\xi\rightarrow\infty$ corresponds to nondiffusive motion and is a trivial case in this model.
-Lu et al. report an experimental bias term of $\xi=0.2$, for which they show single-pass accurate sequence recovery is impossible \cite{Lu:2011}.
-We take this as a starting point for investigation, exploring the range $\xi=0.2$ to $\xi=10$ (from $f\approx2.2\mhz$ to $f\approx112\mhz$ at $\gamma=12.7$).
+Lu et al. report an experimental bias of $\xi=0.2$ with $\gamma=1.27$, for which they show single-pass accurate sequence recovery is impossible \cite{Lu:2011}.
+We take this as a starting point for investigation, exploring the range $\xi=0.2$ to $\xi=10$ (from $f\approx 0.22\mhz$ to $f\approx 11.2\mhz$ at $\gamma=127$).
 An appropriate base-call error rate will be device specific and is presently unknown, so we examine the range $\err=0.0$ to $\err=0.5$.
 The number of reads, $N$, is potentially unlimited, and we examine until convergence.
 
@@ -205,13 +206,13 @@ In Fig.~\ref{fig:parameter_sweeps}\emph{~A} we vary the forward bias for a fixed
 The strongest determinant of inference accuracy is the forward bias, controlling how diffusive the motion is.
 However, the effect of multiple reads is immediately apparent, improving the accuracy markedly until beginning to saturate above $N=100$.
 This is expected because each read contributes an independent observation of the input DNA sequence.
-Accuracy begins to saturate around $\xi=1$, impressive given the probability of a single base forward transition, $p(\delta=+1)$, is only $0.52$.
-In Fig.~\ref{fig:parameter_sweeps}\emph{~B} we plot the relationship between forward bias and the number of reads in the region of $\xi=1$.
+Accuracy begins to saturate around $\xi=1.5$, impressive given the probability of a single base forward transition, $p(\delta=+1)$, is only $0.6$.
+In Fig.~\ref{fig:parameter_sweeps}\emph{~B} we plot the relationship between forward bias and the number of reads in the region of $\xi=1.5$.
 Again, accuracy improves with an increasing number of reads until convergence.
-Finally, inference accuracy is \kje{robust to base-call error rates up to 25\%}, provided each nucleotide in the sequence is visited sufficient times (Fig.~\ref{fig:parameter_sweeps}\emph{~C} and Fig.~\ref{fig:parameter_sweeps}\emph{~D}).
-\kje{From this data, we conclude a threshold accuracy of 99\% is achievable for $\xi>2$ at an error rate $\epsilon=0.2$.
-Following \cite{Larkin:2013} and letting $\gamma=12.7$ (???), this corresponds to a minimum sampling frequency of $\approx20\mhz$, well within todays measurement bandwidths.
-Previous estimates have placed a threshold for accurate sequencing in the GHz sampling range; these results suggest accurate sequencing is possible at sampling frequencies nearly two orders of magnitude lower.}
+Finally, inference accuracy is robust to base-call error rates up to 25\% (Fig.~\ref{fig:parameter_sweeps}\emph{~C} and Fig.~\ref{fig:parameter_sweeps}\emph{~D}).
+From this, we conclude a threshold accuracy of 99\% is achievable for $\xi>2$ at an error rate $\epsilon=0.2$.
+Larkin et al. report a $\gamma\approx100$, corresponding to a minimum sampling frequency of $2.13\mhz$, near todays measurement bandwidths \cite{Larkin:2013}.
+Previous estimates have placed this threshold in the GHz sampling range; these results suggest accurate sequencing is possible at sampling frequencies nearly three orders of magnitude lower.
 \endgroup
 
 Unidirectional motion of the DNA sequence inside the nanopore has been assumed a necessary prerequisite for accurate nanopore sequencing.
